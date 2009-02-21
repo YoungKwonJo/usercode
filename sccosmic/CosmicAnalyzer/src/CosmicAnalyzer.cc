@@ -266,6 +266,7 @@ class CosmicAnalyzer : public edm::EDAnalyzer
 
     edm::Service<TFileService> fs;
 
+    //std::map<int, dethitstruct> rpcrechits_;
 
 };
 
@@ -588,7 +589,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::map<int, int> matchedrechits;
     std::map<int, int> rechitsontrack;
     std::map<int, int> allrechits;
-    std::map<int, dethitstruct> rpcrechits_;
+    //std::map<int, dethitstruct> rpcrechits_;
 
     for (MuonCollection::const_iterator sta = STACollection->begin(); sta!=STACollection->end(); sta++)
     {
@@ -617,13 +618,13 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
         int rawid = irpchit->geographicalId().rawId();
 
-        rpcrechits_[rawid].locx = irpchit->localPosition().x();
-        rpcrechits_[rawid].locy = irpchit->localPosition().y();
-        rpcrechits_[rawid].locz = irpchit->localPosition().z();
+    //    rpcrechits_[rawid].locx = irpchit->localPosition().x();
+     //   rpcrechits_[rawid].locy = irpchit->localPosition().y();
+     //   rpcrechits_[rawid].locz = irpchit->localPosition().z();
         // global position
-        rpcrechits_[rawid].glbx = p.x();
-        rpcrechits_[rawid].glby = p.y();
-        rpcrechits_[rawid].glbz = p.z();
+    //    rpcrechits_[rawid].glbx = p.x();
+     //   rpcrechits_[rawid].glby = p.y();
+     //   rpcrechits_[rawid].glbz = p.z();
 
     }
 
@@ -744,6 +745,11 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detLprMap_[detRawId] = subSub3DirSector.make<TH2F>(Form("DTr%d", detRawId),
                                                                         Form("DT Detid %d match rec ", detRawId),
                                                                         25, -lsize, lsize, 25, -lsize, lsize);
+
+                                detMapResidureX_[detRawId] = subSub3DirSector.make<TH1F>(Form("DT_%d_Residure_X", detRawId),
+                                                                        Form("DT Detid %d Residure X local", detRawId),
+                                                                        400, -100, 100);
+
                         }
                         else if ( chamber->id.subdetId() == 2 ) { // if DT hits
                                 CSCDetId segId(detRawId);
@@ -770,6 +776,10 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detLprMap_[detRawId] = dirLayer.make<TH2F>(Form("CSCr%d", detRawId),
                                                                         Form("CSC Detid %d match rec ", detRawId),
                                                                         25, -lsize, lsize, 25, -lsize, lsize);
+                                detMapResidureX_[detRawId] = dirLayer.make<TH1F>(Form("CSC_%d_Residure_X", detRawId),
+                                                                        Form("CSC Detid %d Residure X local", detRawId),
+                                                                        400, -100, 100);
+
                         }
                         else if(chamber->id.subdetId() == 3) {
                                 RPCDetId segId(detRawId);
@@ -809,7 +819,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detMapResidureX_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_X", detRawId),
                                                                         Form("RPC Detid %d Residure X local", detRawId),
                                                                         400, -100, 100);
-                                detMapResidureY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
+                  /*              detMapResidureY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
                                                                         Form("RPC Detid %d Residure Y local", detRawId),
                                                                         400, -100, 100);
                                 detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
@@ -828,7 +838,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detMapResidureGZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GZ", detRawId),
                                                                         Form("RPC Detid %d Residure GZ", detRawId),
                                                                         100, -200, 200);
-
+                   */
                         }
                 }
 
@@ -880,6 +890,11 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detLprMap_[detRawId] = subSub3DirSector.make<TH2F>(Form("DTr%d", detRawId),
                                                                         Form("DT Detid %d match rec ", detRawId),
                                                                         25, -lsize, lsize, 25, -lsize, lsize);
+
+                                detMapResidureX_[detRawId] = subSub3DirSector.make<TH1F>(Form("DT_%d_Residure_X", detRawId),
+                                                                        Form("DT Detid %d Residure X local", detRawId),
+                                                                        400, -100, 100);
+
                         }
                         else if ( chamber->id.subdetId() == 2 ) { // if DT hits
                                 CSCDetId segId(detRawId);
@@ -906,6 +921,10 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detLprMap_[detRawId] = dirLayer.make<TH2F>(Form("CSCr%d", detRawId),
                                                                         Form("CSC Detid %d match rec ", detRawId),
                                                                         25, -csclsize, csclsize, 25, -csclsize, csclsize);
+
+                                detMapResidureX_[detRawId] = dirLayer.make<TH1F>(Form("CSC_%d_Residure_X", detRawId),
+                                                                        Form("CSC Detid %d Residure X local", detRawId),
+                                                                        400, -100, 100);
                         }
                         else if(chamber->id.subdetId() == 3) {
                                 RPCDetId segId(detRawId);
@@ -947,7 +966,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detMapResidureX_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_X", detRawId),
                                                                         Form("RPC Detid %d Residure X local", detRawId),
                                                                         400, -100, 100);
-                                detMapResidureY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
+                    /*          detMapResidureY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
                                                                         Form("RPC Detid %d Residure Y local", detRawId),
                                                                         400, -100, 100);
                                 detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
@@ -966,7 +985,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detMapResidureGZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GZ", detRawId),
                                                                         Form("RPC Detid %d Residure GZ", detRawId),
                                                                         100, -200, 200);
-
+                     */
                         }
                 }
 
@@ -1128,7 +1147,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 const float stripPredicted =aroll->strip(LocalPoint(chamber->tState.localPosition().x(),chamber->tState.localPosition().y(),0.));
                 if (_debug) cout << "Expected strip # " <<  stripPredicted << " out of " << aroll->nstrips() << endl;
 
-                if (detectorscrossed[rawid].count>icn)
+       /*         if (detectorscrossed[rawid].count>icn)
                 {
                    for(map<int, dethitstruct>::iterator rpchit__= rpcrechits_.begin();
                              rpchit__ != rpcrechits_.end();++rpchit__ )
@@ -1138,7 +1157,9 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                        detMapResidureGZ_[rawid]->Fill(detectorscrossed[rawid].glbz-(* rpchit__).second.glbz);
                        if(_debug) cout << "RPC residual : " << rawid <<" " << (* rpchit__).first << endl;
                   }
-                }    
+         
+                }
+         */    
                 detectorscrossed[rawid].subdet = 3;
                 if (detectorscrossed[rawid].count>icn 
                         && !detectorscrossed_histfilled[rawid])
@@ -1168,11 +1189,11 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         detLprMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
 
 
-                        detMapResidureX_[rawid]->Fill(detectorscrossed[rawid].locx-rpcrechits_[rawid].locx);
-                        detMapResidureY_[rawid]->Fill(detectorscrossed[rawid].locy-rpcrechits_[rawid].locy);
-                        detMapResidureZ_[rawid]->Fill(detectorscrossed[rawid].locz-rpcrechits_[rawid].locz );
+                        detMapResidureX_[rawid]->Fill(residual);
+                       // detMapResidureY_[rawid]->Fill(detectorscrossed[rawid].locy-rpcrechits_[rawid].locy);
+                      //  detMapResidureZ_[rawid]->Fill(detectorscrossed[rawid].locz-rpcrechits_[rawid].locz );
 
-                        cout << "RPC residual :" << residual <<" localposition z: " << rpcrechits_[rawid].locz << endl;
+                        cout << "RPC residual :" << residual << endl; //" localposition z: " << rpcrechits_[rawid].locz << endl;
 
 
 /*                        for(map<int, dethitstruct>::iterator rpchit__= rpcrechits_.begin();
@@ -1242,6 +1263,8 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         detLptMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
                         detLprMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
 //////
+                        detMapResidureX_[rawid]->Fill(residual);
+
                         bool matchfoundontrack = false;
                         for (std::vector<const TrackingRecHit *>::const_iterator hit=alltrackrechits.begin(); 
                                 hit != alltrackrechits.end() && !matchfoundontrack; hit++)
@@ -1316,6 +1339,8 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         matchedrechits[rawid]++;
                         detLptMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
                         detLprMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
+
+                        detMapResidureX_[rawid]->Fill(residual);
 
                         bool matchfoundontrack = false;
                         for (std::vector<const TrackingRecHit *>::const_iterator hit=alltrackrechits.begin(); 
@@ -1637,6 +1662,7 @@ bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float
             matchfound = true;
             residual = locx-hit->localPosition().x();
             maxres = fabs(residual);
+
         }
     }
 
