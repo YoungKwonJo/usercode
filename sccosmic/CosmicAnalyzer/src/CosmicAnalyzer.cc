@@ -15,7 +15,7 @@
 //
 // Original Author:  Su Yong Choi
 //         Created:  Wed Jul  9 17:03:35 CEST 2008
-// $Id$
+// $Id: CosmicAnalyzer.cc,v 1.3 2009/02/21 20:36:33 youngjo Exp $
 //
 //
 
@@ -1235,7 +1235,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 typedef std::vector<DTLocalTrigger>::const_iterator DigiConstIterator;
                 std::pair<DigiConstIterator,DigiConstIterator> range = TrCollection4->get(chamber->id.rawId());
                 //  cout << "++++-----" << (double)(range) << " ++++" << endl;
-             if ( range.first != range.second )
+             if ( range.first == range.second )
              {
                  //cout << "------ END " << endl;
                  //else  cout << " found -------------  "  <<  endl;
