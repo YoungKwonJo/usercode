@@ -15,7 +15,7 @@
 //
 // Original Author:  Su Yong Choi
 //         Created:  Wed Jul  9 17:03:35 CEST 2008
-// $Id: CosmicAnalyzer.cc,v 1.3 2009/02/21 20:36:33 youngjo Exp $
+// $Id$
 //
 //
 
@@ -799,7 +799,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 TFileDirectory dirRing = dirRegion.mkdir(Form("Ring_%d", ring));
                                 TFileDirectory dirStation = dirRing.mkdir(Form("Station_%d", station));
                                 TFileDirectory dirSector = dirStation.mkdir( Form("Sector_%d",sector));
-                                TFileDirectory dirLayer = dirStation.mkdir(Form("Layer_%d", layer));
+                                TFileDirectory dirLayer = dirSector.mkdir(Form("Layer_%d", layer));
                                 TFileDirectory dirSubsector = dirLayer.mkdir(Form("Subsector_%d", subsector));
                                 TFileDirectory dirRoll = dirSubsector.mkdir(Form("Roll_%d", roll));
 
@@ -947,7 +947,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 TFileDirectory dirRing = dirRegion.mkdir(Form("Ring_%d", ring));
                                 TFileDirectory dirStation = dirRing.mkdir(Form("Station_%d", station));
                                 TFileDirectory dirSector = dirStation.mkdir( Form("Sector_%d",sector));
-                                TFileDirectory dirLayer = dirStation.mkdir(Form("Layer_%d", layer));
+                                TFileDirectory dirLayer = dirSector.mkdir(Form("Layer_%d", layer));
                                 TFileDirectory dirSubsector = dirLayer.mkdir(Form("Subsector_%d", subsector));
                                 TFileDirectory dirRoll = dirSubsector.mkdir(Form("Roll_%d", roll));
 
