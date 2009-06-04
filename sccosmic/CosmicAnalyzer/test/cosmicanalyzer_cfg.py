@@ -1,5 +1,4 @@
 # The following comments couldn't be translated into the new config version:
-
 #keep the logging output to a nice level
 
 import FWCore.ParameterSet.Config as cms
@@ -7,27 +6,25 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
+#process.GlobalTag.globaltag = "CRAFT_V4P::All"
 
+process.GlobalTag.globaltag = 'COSMMC_22X_TK::All'
+#process.GlobalTag.globaltag = "CRZT210_V3P::All"
+process.prefer("GlobalTag")
 process.load("Configuration.StandardSequences.Geometry_cff")
-
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("Configuration.StandardSequences.MagneticField_cff")
-
-process.load("Configuration.GlobalRuns.ForceZeroTeslaField_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 
-#include "Geometry/CommonDetUnit/data/bareGlobalTrackingGeometry.cfi"
-# Tracker Geometry Builder
-#include "Geometry/TrackerGeometryBuilder/data/trackerGeometry.cfi"
-# Tracker Numbering Builder
-#include "Geometry/TrackerNumberingBuilder/data/trackerNumberingGeometry.cfi"
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 
-process.prefer("GlobalTag")
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('sccosmicana.root')
 )
@@ -37,6 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+
 
        "/store/data/Commissioning08/Cosmics/RECO/v1/000/068/021/CE84A0AC-2AA6-DD11-91BC-000423D98BE8.root"
 
@@ -74,7 +72,8 @@ process.muonAnalyzer = cms.EDAnalyzer("CosmicAnalyzer",
         HBHERecHitCollectionLabel = cms.InputTag("hbhereco"),
         useHcal = cms.bool(True)
     ),
-    Tracks3 = cms.untracked.InputTag("cosmicMuonsNoDriftBarrelOnly"),
+    Tracks3 = cms.untracked.InputTag("cosmicMuonsNoDriftBarrelOnly"), #"cosmicMuonsNoRPC"),"cosmicMuonsNoDriftBarrelOnly"
+    #Tracks3 = cms.untracked.InputTag("cosmicMuonsNoRPC"), #"cosmicMuonsNoDriftBarrelOnly"
     Tracks2 = cms.untracked.InputTag("cosmicMuonsEndCapsOnly"),
     TrackAssociatorParameterBlock = cms.PSet(
         TrackAssociatorParameters = cms.PSet(
@@ -111,11 +110,10 @@ process.muonAnalyzer = cms.EDAnalyzer("CosmicAnalyzer",
     Tracks4 = cms.untracked.InputTag("muonDTDigis"),
     RPCRecSegmentLabel = cms.untracked.InputTag("rpcRecHits"),
     debug = cms.untracked.bool(True),
-    Muons = cms.untracked.InputTag("GLBMuons"),
-    #untracked InputTag  STAMuons = standAloneMuons:UpdatedAtVtx
-    STAMuons = cms.untracked.InputTag("STAMuons"),
-    #          untracked InputTag DTRecSegmentLabel = dt4DSegments
-    #          untracked InputTag CSCRecSegmentLabel = cscSegments
+    Muons = cms.untracked.InputTag("GLBMuons"), #"muons"), "GLBMuons"
+    #Muons = cms.untracked.InputTag("muons"), #"muons"), "GLBMuons"
+    STAMuons = cms.untracked.InputTag("STAMuons"), # "muonsNoRPC", "STAMuons"
+    #STAMuons = cms.untracked.InputTag("muonsNoRPC"), # "muonsNoRPC", "STAMuons"
     DTRecSegmentLabel = cms.untracked.InputTag("dt1DRecHits")
 )
 
@@ -126,7 +124,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.p = cms.Path(process.muonAnalyzer)
-process.GlobalTag.globaltag = 'COSMMC_21X::All'
 #process.outpath = cms.EndPath(process.out)
 process.muonAnalyzer.TrackAssociatorParameters.dRMuonPreselection = 0.6
 process.muonAnalyzer.TrackAssociatorParameters.muonMaxDistanceX = 3.0
