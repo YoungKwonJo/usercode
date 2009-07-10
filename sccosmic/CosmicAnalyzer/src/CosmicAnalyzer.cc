@@ -90,7 +90,7 @@ using namespace std;
 typedef MuonDigiCollection<DTChamberId, DTLocalTrigger> DTLocalTriggerCollection;
 
 bool findmatch(const  edm::Handle<DTRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual);
-bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum);
+bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum, float &residualyy, float &recX, float &recY);
 bool findmatch(const edm::Handle<CSCRecHit2DCollection> &hitcoll, int detid, float locx, float locy, float &residual);
 
 double maxdist = 7777777.0;
@@ -256,6 +256,9 @@ class CosmicAnalyzer : public edm::EDAnalyzer
         std::map<int, TH2F*> detLptMap_;
         std::map<int, TH2F*> detLpmMap_;
         std::map<int, TH2F*> detLprMap_;
+
+        std::map<int, TH2F*> detLprMapXY_;
+        std::map<int, TH2F*> detLpmMapXY_;
 
         std::map<int, TH1F*> detMapResidureX_;
         std::map<int, TH1F*> detMapResidureY_;
@@ -804,51 +807,8 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	                        int subsector = segId.subsector();
 	                        int roll  = segId.roll();
                                 int lsize= rpclsize;
-/*
-                                string label;
-                                string subs, rollN;
 
-                                if(region == 0 )
-                                {
-
-                                    if((station ==1 || station ==2) && subsector==1) subs="in";
-                                    else if((station ==1 || station ==2) && subsector==2) subs="out";
-
-                                    if(station == 3 && subsector ==1) subs="-";
-                                    else if(station == 3 && subsector ==2) subs="+";
-
-                                    if(station == 4 && (sector==1 || sector==2 || sector==3
-                                                   || sector==5 || sector==6
-                                                   || sector==7 || sector==8
-                                                   || sector==10             || sector==12) && subsector==2) subs = "+";
-                                    else if(station==4 && sector==4 && subsector==1) subs="--";
-                                    else if(station==4 && sector==4 && subsector==2) subs="-";
-                                    else if(station==4 && sector==4 && subsector==3) subs="+";
-                                    else if(station==4 && sector==4 && subsector==4) subs="++";
-                                    else if(station==4 ) subs="-";
-
-                                    if(roll==1) rollN="Backward";
-                                    if(roll==2) rollN="Central";
-                                    if(roll==3) rollN="Forward";
-                                    if(roll==4) rollN="D";
-
-                                    stringstream ss;
-                                    if ( ring<1 && sector<10 ) ss << "W"  << ring << "_RB" << station << subs << "_S0" << sector << "_" << rollN;
-                                    if ( ring<1 && sector>9  ) ss << "W"  << ring << "_RB" << station << subs << "_S"  << sector << "_" << rollN;
-                                    if ( ring>0 && sector<10 ) ss << "W+" << ring << "_RB" << station << subs << "_S0" << sector << "_" << rollN;
-                                    if ( ring>0 && sector>9  ) ss << "W+"  << ring << "_RB" << station << subs << "_S"  << sector << "_" << rollN;
-                                    ss >> label;
-
-                                    cout << label << "\n" << endl;
-
-                                }
-                                else 
-                                {
-                                    stringstream ss;
-                                    ss << "detid" << detRawId;
-                                    ss >> label;
-                                }
-*/                               // RPCGeomServ servId(detRawId); 
+                               // RPCGeomServ servId(detRawId); 
                                 cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
 
                                 TFileDirectory subDir_RPC = fs->mkdir( "RPC" );
@@ -870,10 +830,12 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                                                         Form("%s match rec ", servId.name().c_str()),
                                                                         25, -lsize, lsize, 25, -lsize, lsize);
 
-
-                              //  detMapResidureXY_[detRawId] = dirRoll.make<TH2F>(Form("RPC_%d_Residure_X_Y", detRawId),
-                              //                                          Form("RPC Detid %d Residure X local", detRawId),
-                              //                                          100, -100, 100,100, -100, 100);
+                                detLprMapXY_[detRawId] = dirSector.make<TH2F>(Form("RPC_%d_rXY", detRawId),
+                                                                        Form("%s rechit xy", servId.name().c_str()),
+                                                                         25, -lsize, lsize, 25, -lsize, lsize);
+                                detLpmMapXY_[detRawId] = dirSector.make<TH2F>(Form("RPC_%d_mXY", detRawId),
+                                                                        Form("%s matched rechit xy", servId.name().c_str()),
+                                                                         25, -lsize, lsize, 25, -lsize, lsize);
 
                                 detMapResidureX_[detRawId] = dirSector.make<TH1F>(Form("RPC_%d_Residure_X", detRawId),
                                                                         Form("%s Residure X local", servId.name().c_str()),
@@ -882,10 +844,10 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                                                         Form("%s Residure addX local", servId.name().c_str()),
                                                                         400, -100, 100);
 
-                  /*              detMapResidureY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
-                                                                        Form("RPC Detid %d Residure Y local", detRawId),
+                                detMapResidureY_[detRawId] = dirSector.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
+                                                                        Form("%s Residure Y local", servId.name().c_str()),
                                                                         400, -100, 100);
-                                detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
+                 /*               detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
                                                                         Form("RPC Detid %d Residure Z local", detRawId),
                                                                         400, -100, 100);
 
@@ -1000,50 +962,6 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	                        int roll  = segId.roll();
                                 int lsize= rpclsize;
 
-/*                                string label;
-                                string subs, rollN;
-
-                                if(region == 0 )
-                                {
-
-                                    if((station ==1 || station ==2) && subsector==1) subs="in";
-                                    else if((station ==1 || station ==2) && subsector==2) subs="out";
-
-                                    if(station == 3 && subsector ==1) subs="-";
-                                    else if(station == 3 && subsector ==2) subs="+";
-
-                                    if(station == 4 && (sector==1 || sector==2 || sector==3
-                                                   || sector==5 || sector==6
-                                                   || sector==7 || sector==8
-                                                   || sector==10             || sector==12) && subsector==2) subs = "+";
-                                    else if(station==4 && sector==4 && subsector==1) subs="--";
-                                    else if(station==4 && sector==4 && subsector==2) subs="-";
-                                    else if(station==4 && sector==4 && subsector==3) subs="+";
-                                    else if(station==4 && sector==4 && subsector==4) subs="++";
-                                    else if(station==4 ) subs="-";
-
-                                    if(roll==1) rollN="Backward";
-                                    if(roll==2) rollN="Central";
-                                    if(roll==3) rollN="Forward";
-                                    if(roll==4) rollN="D";
-
-                                    stringstream ss;
-                                    if ( ring<1 && sector<10 ) ss << "W"  << ring << "_RB" << station << subs << "_S0" << sector << "_" << rollN;
-                                    if ( ring<1 && sector>9  ) ss << "W"  << ring << "_RB" << station << subs << "_S"  << sector << "_" << rollN;
-                                    if ( ring>0 && sector<10 ) ss << "W+" << ring << "_RB" << station << subs << "_S0" << sector << "_" << rollN;
-                                    if ( ring>0 && sector>9  ) ss << "W+"  << ring << "_RB" << station << subs << "_S"  << sector << "_" << rollN;
-                                    ss >> label;
-
-                                    cout << label << "\n" << endl;
-
-                                }
-                                else 
-                                {
-                                    stringstream ss;
-                                    ss << "detid" << detRawId; 
-                                    ss >> label;
-                                }    
-*/
                                 RPCGeomServ servId(detRawId);
                                 cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
 
@@ -1067,9 +985,12 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                                                         Form("%s match rec ", servId.name().c_str()),
                                                                         25, -lsize, lsize, 25, -lsize, lsize);
 
-                              //  detMapResidureXY_[detRawId] = dirRoll.make<TH2F>(Form("RPC_%d_Residure_X_Y", detRawId),
-                              //                                          Form("RPC Detid %d Residure X local", detRawId),
-                              //                                          100, -100, 100,100, -100, 100);
+                                detLprMapXY_[detRawId] = dirSector.make<TH2F>(Form("RPC_%d_rXY", detRawId),
+                                                                        Form("%s rechit xy", servId.name().c_str()),
+                                                                         25, -lsize, lsize, 25, -lsize, lsize);
+                                detLpmMapXY_[detRawId] = dirSector.make<TH2F>(Form("RPC_%d_mXY", detRawId),
+                                                                        Form("%s matched rechit xy", servId.name().c_str()),
+                                                                         25, -lsize, lsize, 25, -lsize, lsize);
 
                                 detMapResidureX_[detRawId] = dirSector.make<TH1F>(Form("RPC_%d_Residure_X", detRawId),
                                                                         Form("%s Residure X local", servId.name().c_str()),
@@ -1077,11 +998,11 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detMapResidureXadd[detRawId] = dirSector.make<TH1F>(Form("RPC_%d_Residure_addX", detRawId),
                                                                         Form("%s Residure addX local", servId.name().c_str()),
                                                                         400, -100, 100);
-
-                    /*          detMapResidureY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
-                                                                        Form("RPC Detid %d Residure Y local", detRawId),
+                                detMapResidureY_[detRawId] = dirSector.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
+                                                                        Form("%s Residure Y local", servId.name().c_str()),
                                                                         400, -100, 100);
-                                detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
+
+                   /*             detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
                                                                         Form("RPC Detid %d Residure Z local", detRawId),
                                                                         400, -100, 100);
 
@@ -1256,6 +1177,10 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             if (aroll)
             {
+          //    RPCGeomServ servId(rawid);
+          //    if(strncpy(servId.name(),"Back",4) && chamber->tState.localPosition().y() <-15);
+           //   if(strncpy(servId.name(),"Forw",4) && chamber->tState.localPosition().y() >-25);
+
                 const float stripPredicted =aroll->strip(LocalPoint(chamber->tState.localPosition().x(),chamber->tState.localPosition().y(),0.));
                 if (_debug) cout << "Expected strip # " <<  stripPredicted << " out of " << aroll->nstrips() << endl;
 
@@ -1276,8 +1201,8 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 if (detectorscrossed[rawid].count>icn 
                         && !detectorscrossed_histfilled[rawid])
                 {
-                    float residual, sum;
-                    if (findmatch(allRPChits, rawid, detectorscrossed[rawid].locx, detectorscrossed[rawid].locy, residual, sum))
+                    float residual, sum, residualy, recX, recY;
+                    if (findmatch(allRPChits, rawid, detectorscrossed[rawid].locx, detectorscrossed[rawid].locy, residual, sum, residualy, recX, recY))
                     {
                         RPCDetId segId(rawid);
                         int region = segId.region();
@@ -1300,11 +1225,12 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         detLptMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
                         detLprMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
 
-
+                        detLprMapXY_[rawid]->Fill(recX, recY);
+       
                         detMapResidureX_[rawid]->Fill(residual);
                         detMapResidureXadd[rawid]->Fill(sum);
 
-                       // detMapResidureY_[rawid]->Fill(detectorscrossed[rawid].locy-rpcrechits_[rawid].locy);
+                        detMapResidureY_[rawid]->Fill(residualy);
                       //  detMapResidureZ_[rawid]->Fill(detectorscrossed[rawid].locz-rpcrechits_[rawid].locz );
 
                         cout << "RPC residual :" << residual << endl; //" localposition z: " << rpcrechits_[rawid].locz << endl;
@@ -1337,6 +1263,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 rechitsontrack[rawid]++;
                                 matchfoundontrack = true;
                                 detLpmMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
+                                detLpmMapXY_[rawid]->Fill((*hit)->localPosition().x(),(*hit)->localPosition().y());
                             }
                         }
                     }
@@ -1761,7 +1688,7 @@ bool findmatch(const edm::Handle<CSCRecHit2DCollection> &hitcoll, int detid, flo
     return matchfound;
 }
 
-bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum)
+bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum,float &residualy, float &recX, float &recY)
 {
     bool matchfound = false;
     double maxres = maxdist;
@@ -1775,8 +1702,11 @@ bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float
         {
             matchfound = true;
             residual = locx-hit->localPosition().x();
+            residualy = locy-hit->localPosition().y();
             maxres = fabs(residual);
             sum = locx+hit->localPosition().x();
+            recX = hit->localPosition().x();
+            recY = hit->localPosition().y();
         }
     }
 
