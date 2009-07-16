@@ -628,7 +628,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet);
         if (aroll)
         {
-            // cout << "-----PRC-Roll-- " << irpchit->geographicalId().rawId() << " " << endl;
+             cout << "--RPC-Roll-- " << irpchit->geographicalId().rawId() << " " << endl;
         }
         int rawid = irpchit->geographicalId().rawId();
 
@@ -735,7 +735,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             chamber!= info.chambers.end(); chamber++ )
         {
                int detRawId = chamber->id.rawId();
-               if(_debug) cout << "subdetid : "<< chamber->id.subdetId() << endl;
+           //    if(_debug) cout << "subdetid : "<< chamber->id.subdetId() << endl;
                 if ( !detLptMap_[detRawId] ) {
 
                         if ( chamber->id.subdetId() == 1 ) { // if DT hits
@@ -808,7 +808,6 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	                        int roll  = segId.roll();
                                 int lsize= rpclsize;
 
-                               // RPCGeomServ servId(detRawId); 
                                 cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
 
                                 TFileDirectory subDir_RPC = fs->mkdir( "RPC" );
@@ -816,9 +815,6 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 TFileDirectory dirRing = dirRegion.mkdir(Form("Ring_%d", ring));
                                 TFileDirectory dirStation = dirRing.mkdir(Form("Station_%d", station));
                                 TFileDirectory dirSector = dirStation.mkdir( Form("Sector_%d",sector));
-                               // TFileDirectory dirLayer = dirSector.mkdir(Form("Layer_%d", layer));
-                               // TFileDirectory dirSubsector = dirLayer.mkdir(Form("Subsector_%d", subsector));
-                               // TFileDirectory dirRoll = dirSubsector.mkdir(Form("Roll_%d", roll));
 
                                 detLptMap_[detRawId] = dirSector.make<TH2F>(Form("RPCt%d", detRawId),
                                                                         Form("%s trajectory", servId.name().c_str()),
@@ -847,23 +843,6 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 detMapResidureY_[detRawId] = dirSector.make<TH1F>(Form("RPC_%d_Residure_Y", detRawId),
                                                                         Form("%s Residure Y local", servId.name().c_str()),
                                                                         400, -100, 100);
-                 /*               detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
-                                                                        Form("RPC Detid %d Residure Z local", detRawId),
-                                                                        400, -100, 100);
-
-                              //  detMapResidureGXY_[detRawId] = dirRoll.make<TH2F>(Form("RPC_%d_Residure_GX_GY", detRawId),
-                              //                                          Form("RPC Detid %d Residure GX", detRawId),
-                              //                                          100, -100, 100,100, -100, 100);
-                                detMapResidureGX_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GX", detRawId),
-                                                                        Form("RPC Detid %d Residure GX", detRawId),
-                                                                        100, -200, 200);
-                                detMapResidureGY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GY", detRawId),
-                                                                        Form("RPC Detid %d Residure GY", detRawId),
-                                                                        100, -200, 200);
-                                detMapResidureGZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GZ", detRawId),
-                                                                        Form("RPC Detid %d Residure GZ", detRawId),
-                                                                        100, -200, 200);
-                   */
                         }
                 }
 
@@ -891,7 +870,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         {
                int detRawId = chamber->id.rawId();
                int lsize = 200, csclsize = 110;
-               if(_debug) cout << "subdetid : "<< chamber->id.subdetId() << endl;
+          //    if(_debug) cout << "subdetid : "<< chamber->id.subdetId() << endl;
                 if ( !detLptMap_[detRawId] ) {
 
                         if ( chamber->id.subdetId() == 1 ) { // if DT hits
@@ -971,9 +950,6 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 TFileDirectory dirRing = dirRegion.mkdir(Form("Ring_%d", ring));
                                 TFileDirectory dirStation = dirRing.mkdir(Form("Station_%d", station));
                                 TFileDirectory dirSector = dirStation.mkdir( Form("Sector_%d",sector));
-                                //TFileDirectory dirLayer = dirSector.mkdir(Form("Layer_%d", layer));
-                                //TFileDirectory dirSubsector = dirLayer.mkdir(Form("Subsector_%d", subsector));
-                                //TFileDirectory dirRoll = dirSubsector.mkdir(Form("Roll_%d", roll));
 
                                 detLptMap_[detRawId] = dirSector.make<TH2F>(Form("RPCt%d", detRawId),
                                                                         Form("%s trajectory", servId.name().c_str()),
@@ -1002,23 +978,6 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                                                         Form("%s Residure Y local", servId.name().c_str()),
                                                                         400, -100, 100);
 
-                   /*             detMapResidureZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_Z", detRawId),
-                                                                        Form("RPC Detid %d Residure Z local", detRawId),
-                                                                        400, -100, 100);
-
-                              //  detMapResidureGXY_[detRawId] = dirRoll.make<TH2F>(Form("RPC_%d_Residure_GX_GY", detRawId),
-                              //                                          Form("RPC Detid %d Residure GX", detRawId),
-                              //                                          100, -100, 100,100, -100, 100);
-                                detMapResidureGX_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GX", detRawId),
-                                                                        Form("RPC Detid %d Residure GX", detRawId),
-                                                                        100, -200, 200);
-                                detMapResidureGY_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GY", detRawId),
-                                                                        Form("RPC Detid %d Residure GY", detRawId),
-                                                                        100, -200, 200);
-                                detMapResidureGZ_[detRawId] = dirRoll.make<TH1F>(Form("RPC_%d_Residure_GZ", detRawId),
-                                                                        Form("RPC Detid %d Residure GZ", detRawId),
-                                                                        100, -200, 200);
-                     */
                         }
                 }
 
@@ -1058,7 +1017,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 htrackrechitsz->Fill(p.z());
                 if (_debug && (*hit)->geographicalId().subdetId()==1) printf("DT  Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
                 else if (_debug && (*hit)->geographicalId().subdetId()==2) printf("CSC Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
-                else if (_debug  && (*hit)->geographicalId().subdetId()==3) printf("RPC Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
+                else if (_debug  && (*hit)->geographicalId().subdetId()==3) printf("--RPC Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
 
                 if ((*hit)->geographicalId().det()==DetId::Muon
                     && (*hit)->geographicalId().subdetId()==1)
@@ -1110,7 +1069,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
              //   rechitsontrack[(*hit)->geographicalId().rawId()]++;
                 if (_debug && (*hit)->geographicalId().subdetId()==1) printf("DT  Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
                 else if (_debug && (*hit)->geographicalId().subdetId()==2) printf("CSC Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
-                else if (_debug  && (*hit)->geographicalId().subdetId()==3) printf("RPC Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
+                else if (_debug  && (*hit)->geographicalId().subdetId()==3) printf("--RPC Rec Hit id=%d %6.2f %6.2f %6.2f\n", (*hit)->geographicalId().rawId(), p.x(), p.y(), p.z());
 
                 if ((*hit)->geographicalId().det()==DetId::Muon
                     && (*hit)->geographicalId().subdetId()==1)
@@ -1136,23 +1095,23 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ////////////////////////////////////////////
     for(std::vector<TrackDetMatchInfo>::const_iterator tr = trAcInfo.begin();tr != trAcInfo.end(); tr++)
     {
-        if (_debug) cout << "Muon detector matching details: "  << endl;
+        if (_debug) cout << "\n\n Muon detector matching details: "  << endl;
         for(std::vector<TAMuonChamberMatch>::const_iterator chamber = tr->chambers.begin();
             chamber!= tr->chambers.end(); chamber++ )
         {
 
-            if (_debug) cout << chamber->info() << "\n\t(DetId, station, localx, localy): "
+            if (_debug) cout << "\n "<< chamber->info() << "\n\t(DetId, station, localx, localy): "
                 << chamber->id.rawId() << ", "
                 << chamber->station() << ", "
-                << chamber->tState.localPosition().x() << " +- " << sqrt(chamber->tState.localError().positionError().xx()) << "  "
-                << chamber->tState.localPosition().y() << " +- " << sqrt(chamber->tState.localError().positionError().yy())
+                << chamber->tState.localPosition().x() << ", " // << " +- " << sqrt(chamber->tState.localError().positionError().xx()) << "  "
+                << chamber->tState.localPosition().y() << " " // << " +- " << sqrt(chamber->tState.localError().positionError().yy())
                 << endl;
 
-            if (_debug) cout << "\t trajectory global point (x,y,z): "
+/*            if (_debug) cout << "\t trajectory global point (x,y,z): "
                 << chamber->tState.globalPosition().x() << ", "
                 << chamber->tState.globalPosition().y() << ", "
                 << chamber->tState.globalPosition().z() << endl;
-
+*/
             double hitz = chamber->tState.globalPosition().z();
             int zbin;
 
@@ -1174,37 +1133,36 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet);
             const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(whichdet);
             const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(whichdet);
-
+          if(fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<100)
+          {
             if (aroll)
             {
-          //    RPCGeomServ servId(rawid);
+              RPCDetId segId(rawid);
+              if (fabs(detectorscrossed[rawid].locy)<50 | fabs(segId.region())==1 )
+              {
+//                 RPCDetId segId(rawid);
+                 RPCGeomServ servId(rawid);
+
           //    if(strncpy(servId.name(),"Back",4) && chamber->tState.localPosition().y() <-15);
            //   if(strncpy(servId.name(),"Forw",4) && chamber->tState.localPosition().y() >-25);
 
                 const float stripPredicted =aroll->strip(LocalPoint(chamber->tState.localPosition().x(),chamber->tState.localPosition().y(),0.));
-                if (_debug) cout << "Expected strip # " <<  stripPredicted << " out of " << aroll->nstrips() << endl;
+                if (_debug) cout << "--RPC "<< servId.name()<< " "<<rawid <<" Expected strip # " <<  stripPredicted << " out of " << aroll->nstrips() << endl;
 
-       /*         if (detectorscrossed[rawid].count>icn)
-                {
-                   for(map<int, dethitstruct>::iterator rpchit__= rpcrechits_.begin();
-                             rpchit__ != rpcrechits_.end();++rpchit__ )
-                   {
-                       detMapResidureGX_[rawid]->Fill(detectorscrossed[rawid].glbx-(* rpchit__).second.glbx);
-                       detMapResidureGY_[rawid]->Fill(detectorscrossed[rawid].glby-(* rpchit__).second.glby);
-                       detMapResidureGZ_[rawid]->Fill(detectorscrossed[rawid].glbz-(* rpchit__).second.glbz);
-                       if(_debug) cout << "RPC residual : " << rawid <<" " << (* rpchit__).first << endl;
-                  }
          
-                }
-         */    
                 detectorscrossed[rawid].subdet = 3;
                 if (detectorscrossed[rawid].count>icn 
                         && !detectorscrossed_histfilled[rawid])
                 {
+                  //  double shiftY = 0;
+
+                  //  if(TString(servId.name()).EndsWith("Backward") ) shiftY=121;
+                  //  if(TString(servId.name()).EndsWith("Middle") ) shiftY=82;
+
                     float residual, sum, residualy, recX, recY;
                     if (findmatch(allRPChits, rawid, detectorscrossed[rawid].locx, detectorscrossed[rawid].locy, residual, sum, residualy, recX, recY))
                     {
-                        RPCDetId segId(rawid);
+
                         int region = segId.region();
                         int ring = segId.ring()-1;
                         zbin = ring+3;
@@ -1233,18 +1191,10 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         detMapResidureY_[rawid]->Fill(residualy);
                       //  detMapResidureZ_[rawid]->Fill(detectorscrossed[rawid].locz-rpcrechits_[rawid].locz );
 
-                        cout << "RPC residual :" << residual << endl; //" localposition z: " << rpcrechits_[rawid].locz << endl;
+                        cout << "\n--RPC residual :" << servId.name() <<", X:"<< residual <<", Y:"<< residualy << endl; //" localposition z: " << rpcrechits_[rawid].locz << endl;
 
-
-/*                        for(map<int, dethitstruct>::iterator rpchit__= rpcrechits_.begin();
-                                  rpchit__ != rpcrechits_.end();++rpchit__ )
-                        {    
-                             detMapResidureGX_[rawid]->Fill(detectorscrossed[rawid].glbx-(* rpchit__).second.glbx);
-                             detMapResidureGY_[rawid]->Fill(detectorscrossed[rawid].glby-(* rpchit__).second.glby);
-                             detMapResidureGZ_[rawid]->Fill(detectorscrossed[rawid].glbz-(* rpchit__).second.glbz );
-                             if(_debug) cout << "RPC residual : " << rawid <<" " << (* rpchit__).first << endl;  
-                        }
-*/
+                    } 
+                        double tresidualy=0, tresidual=0, mindist=500;
                         bool matchfoundontrack = false;
                         for (std::vector<const TrackingRecHit *>::const_iterator hit=alltrackrechits.begin(); 
                                 hit != alltrackrechits.end() && !matchfoundontrack; hit++)
@@ -1252,8 +1202,11 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                             //const GlobalPoint &p = theG->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
                             //const GeomDet *whichdet = theG->idToDet((*hit)->geographicalId());
                             if ((*hit)->geographicalId().rawId() == rawid
-                                    && fabs( detectorscrossed[rawid].locx - (*hit)->localPosition().x()) < maxdist )
+                                    && fabs( detectorscrossed[rawid].locx - (*hit)->localPosition().x()) < mindist )
                             {
+                                 int region = segId.region();
+                                 int ring = segId.ring()-1;
+                                 zbin = ring+3;
 
                                 if(region==0) hrpcmatchrechitontrackxy_r0[zbin]->Fill(detectorscrossed[rawid].glbx, detectorscrossed[rawid].glby);
                                 else if(region==-1) hrpcmatchrechitontrackxy_rm1[ring]->Fill(detectorscrossed[rawid].glbx, detectorscrossed[rawid].glby); 
@@ -1264,10 +1217,17 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                 matchfoundontrack = true;
                                 detLpmMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
                                 detLpmMapXY_[rawid]->Fill((*hit)->localPosition().x(),(*hit)->localPosition().y());
+
+                                tresidual=fabs( detectorscrossed[rawid].locx - (*hit)->localPosition().x());
+                                tresidualy=fabs( detectorscrossed[rawid].locy - (*hit)->localPosition().y());
+                                mindist=tresidual;
                             }
                         }
-                    }
+                        if(matchfoundontrack) cout << "\n--RPC residual track:" << servId.name() <<", X:"<< tresidual <<", Y:"<< tresidualy << endl;
+
+                   // }
                 }
+              }
             }
             else if (dtlayer)
             {
@@ -1280,7 +1240,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                  //else  cout << " found -------------  "  <<  endl;
 
                 const float stripPredicted =dtlayer->specificTopology().channel(LocalPoint(chamber->tState.localPosition().x(),chamber->tState.localPosition().y(),0.));
-                if (_debug) cout << "Expected wire # " <<  stripPredicted 
+                if (_debug) cout << "DT Expected wire # " <<  stripPredicted 
                     << " out of " << dtlayer->specificTopology().channels() << endl;
                 detectorscrossed[rawid].subdet = 1;
                 if (detectorscrossed[rawid].count>icn 
@@ -1405,6 +1365,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                 }
             }
+          }
 /*
   LogVerbatim("CosmicAnalyzer") << "\t trajectory global point (z,perp,eta,phi): "
 << chamber->tState.globalPosition().z() << ", "
@@ -1414,7 +1375,7 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
             if (_debug) 
             {
-                cout << "\t trajectory local point (x,y): "
+                cout << "\n\t trajectory local point (x,y): "
                 << chamber->tState.localPosition().x() << ", "
                 << chamber->tState.localPosition().y() <<endl;
 
@@ -1564,7 +1525,8 @@ cout << rpcsurface->position().z() << endl;
                 int det = detectorscrossed[rawid].subdet;
                 
                 int zbin;
-
+              if(fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<100)
+              {
                 if (det==1) //DT
                 {
                         DTChamberId segId(rawid);
@@ -1593,7 +1555,10 @@ cout << rpcsurface->position().z() << endl;
                 }
                 else if (det==3) // RPC
                 {
-                        RPCDetId segId(rawid);
+                   RPCDetId segId(rawid);
+                   if (fabs(detectorscrossed[rawid].locy)<50 | fabs(segId.region())==1 )
+                   {
+                //        RPCDetId segId(rawid);
                         int region = segId.region();
                         int ring = segId.ring()-1;
                         zbin = ring+3;
@@ -1603,7 +1568,9 @@ cout << rpcsurface->position().z() << endl;
                     else hrpctrajectoryxy_rp1[ring]->Fill(detectorscrossed[rawid].glbx, detectorscrossed[rawid].glby);
                     hrpctrajectoryz->Fill(detectorscrossed[rawid].glbz);
                     detLptMap_[rawid]->Fill(detectorscrossed[rawid].locx,detectorscrossed[rawid].locy);
+                   } 
                 }
+              }
 
             }
         }
@@ -1697,6 +1664,12 @@ bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float
     {
         const GeomDet *whichdet = theG->idToDet(hit->geographicalId());
         //const GlobalPoint &p = whichdet->surface().toGlobal(hit->localPosition());
+        RPCGeomServ servId(detid);
+   //     double shiftY = 0;
+
+    //    if(TString(servId.name()).EndsWith("Backward") ) shiftY=121;
+    //    if(TString(servId.name()).EndsWith("Middle") ) shiftY=82;
+       if (hit->geographicalId().rawId()==detid) cout << "!! " << maxres <<", "<< fabs(locx-hit->localPosition().x()) << " !!matched "<< detid << servId.name();
 
         if (hit->geographicalId().rawId() == detid && maxres>fabs(locx-hit->localPosition().x())) 
         {
