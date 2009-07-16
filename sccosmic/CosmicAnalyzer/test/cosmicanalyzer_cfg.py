@@ -6,10 +6,10 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-#process.GlobalTag.globaltag = "CRAFT_V4P::All"
-
-process.GlobalTag.globaltag = 'COSMMC_22X_TK::All'
+#process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
+process.GlobalTag.globaltag = "GR09_31X_V3P::All"#"CRUZET4_V4P::All"
+#CRAFT_V4P::All , CRUZET4_V4P::All
+#process.GlobalTag.globaltag = 'COSMMC_22X_TK::All'
 #process.GlobalTag.globaltag = "CRZT210_V3P::All"
 process.prefer("GlobalTag")
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -36,7 +36,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
 
-       "/store/data/Commissioning08/Cosmics/RECO/v1/000/068/021/CE84A0AC-2AA6-DD11-91BC-000423D98BE8.root"
+        '/store/data/Commissioning09/Cosmics/RECO/v5/000/105/755/D266D139-D871-DE11-A709-001D09F28F0C.root'
 
 
      )
@@ -72,8 +72,8 @@ process.muonAnalyzer = cms.EDAnalyzer("CosmicAnalyzer",
         HBHERecHitCollectionLabel = cms.InputTag("hbhereco"),
         useHcal = cms.bool(True)
     ),
-    Tracks3 = cms.untracked.InputTag("cosmicMuonsNoDriftBarrelOnly"), #"cosmicMuonsNoRPC"),"cosmicMuonsNoDriftBarrelOnly"
-    #Tracks3 = cms.untracked.InputTag("cosmicMuonsNoRPC"), #"cosmicMuonsNoDriftBarrelOnly"
+    #Tracks3 = cms.untracked.InputTag("cosmicMuonsNoDriftBarrelOnly"), #"cosmicMuonsNoRPC"),"cosmicMuonsNoDriftBarrelOnly"
+    Tracks3 = cms.untracked.InputTag("cosmicMuonsNoRPC"), #"cosmicMuonsNoDriftBarrelOnly"
     Tracks2 = cms.untracked.InputTag("cosmicMuonsEndCapsOnly"),
     TrackAssociatorParameterBlock = cms.PSet(
         TrackAssociatorParameters = cms.PSet(
@@ -110,10 +110,10 @@ process.muonAnalyzer = cms.EDAnalyzer("CosmicAnalyzer",
     Tracks4 = cms.untracked.InputTag("muonDTDigis"),
     RPCRecSegmentLabel = cms.untracked.InputTag("rpcRecHits"),
     debug = cms.untracked.bool(True),
-    Muons = cms.untracked.InputTag("GLBMuons"), #"muons"), "GLBMuons"
-    #Muons = cms.untracked.InputTag("muons"), #"muons"), "GLBMuons"
-    STAMuons = cms.untracked.InputTag("STAMuons"), # "muonsNoRPC", "STAMuons"
-    #STAMuons = cms.untracked.InputTag("muonsNoRPC"), # "muonsNoRPC", "STAMuons"
+    #Muons = cms.untracked.InputTag("GLBMuons"), #"muons"), "GLBMuons"
+    Muons = cms.untracked.InputTag("muons"), #"muons"), "GLBMuons"
+    #STAMuons = cms.untracked.InputTag("STAMuons"), # "muonsNoRPC", "STAMuons"
+    STAMuons = cms.untracked.InputTag("muonsNoRPC"), # "muonsNoRPC", "STAMuons"
     DTRecSegmentLabel = cms.untracked.InputTag("dt1DRecHits")
 )
 
@@ -125,8 +125,8 @@ process.MessageLogger = cms.Service("MessageLogger")
 
 process.p = cms.Path(process.muonAnalyzer)
 #process.outpath = cms.EndPath(process.out)
-process.muonAnalyzer.TrackAssociatorParameters.dRMuonPreselection = 0.6
-process.muonAnalyzer.TrackAssociatorParameters.muonMaxDistanceX = 3.0
-process.muonAnalyzer.TrackAssociatorParameters.muonMaxDistanceY = 3.0
+process.muonAnalyzer.TrackAssociatorParameters.dRMuonPreselection = 1.0
+process.muonAnalyzer.TrackAssociatorParameters.muonMaxDistanceX = 200.0
+process.muonAnalyzer.TrackAssociatorParameters.muonMaxDistanceY = 200.0
 
 
