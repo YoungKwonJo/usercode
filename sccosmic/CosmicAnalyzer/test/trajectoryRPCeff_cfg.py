@@ -43,7 +43,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
 
-        'file://reco.root'
+        'file:///afs/cern.ch/user/y/youngjo/public/reco.root'
 
 
      )
@@ -61,8 +61,7 @@ process.muonAnalyzer = cms.EDAnalyzer("TrajectoryRPCEff",
     TrackerRecHitBuilder = cms.string('WithTrackAngle'),
     MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
     RefitRPCHits = cms.bool(False)
-    ),
-
+    )
 
 )
 

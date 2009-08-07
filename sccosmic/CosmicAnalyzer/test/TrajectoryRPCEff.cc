@@ -15,7 +15,7 @@
 //
 // Original Author:  Su Yong Choi
 //         Created:  Wed Jul  9 17:03:35 CEST 2008
-// $Id: TrajectoryRPCEff.cc,v 1.10 2009/07/17 11:59:39 youngjo Exp $
+// $Id: TrajectoryRPCEff.cc,v 1.1 2009/08/05 19:02:58 youngjo Exp $
 //
 //
 
@@ -274,115 +274,105 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
 {
      TrajectoryMeasurement  tMt = trajectory.closestMeasurement(GlPt);
      TrajectoryStateOnSurface upd2 = (tMt).updatedState();
-     double tx=upd2.globalPosition().x();
-     double ty=upd2.globalPosition().y();
-     double tz=upd2.globalPosition().z();
-////////////////
-     PropagationDirection pdirec = trajectory.direction();
-//   SteppingHelixPropagator a = SteppingHelixPropagator(const MagneticField* field, dir):
-
-////////////////
-
-     const TransientTrackingRecHit *hit = &(*tMt.recHit());
-
-  //  cout << "TrajStateOnSur: updi2 glo posi " << " (x,y,z) : "<< tx <<", "<<ty<<", " << tz << endl;
- //   cout << "local position :(x,y,z) "<< upd2.localPosition().x() << ", "<< upd2.localPosition().y() << ", "<< upd2.localPosition().z() << endl;
-//////////////////////////
-     double gDxyz=50, gDxyz_;
-     int mrpcid=0;
-
-     std::set<DetId> detidS = detidAsso->getDetIdsCloseToAPoint( upd2.globalPosition(), 0.5);
-//     std::set<DetId> detidS = nearRPCChamberFinder();
-     for(std::set<DetId>::const_iterator  detid2 = detidS.begin(); detid2 != detidS.end(); ++detid2)
-     {
-         DetId id(*detid2);
-
-         const GeomDet *whichdet = theG->idToDet(id.rawId());
-         const RPCChamber *rpcChamber = dynamic_cast<const RPCChamber *>(whichdet);
-
-         if(rpcChamber)
-         {
-          //      cout << "closet hit is RPC Chamber "<<  id.rawId()  << endl;
-                RPCGeomServ servId(id.rawId());
-
-                std::vector< const RPCRoll*> roles = (rpcChamber->rolls());
-
-                const GlobalPoint &p = whichdet->surface().toGlobal(upd2.localPosition());
-
-          //      cout << "RPC Chamber : " << servId.name() << "(x,y,z)" << p.x() << ", " << p.y() << ", " << p.z() << endl;
-
-                for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r)
-                {
-
-                     RPCDetId rpcId = (*r)->id();
-
-                     RPCGeomServ rpcsrv(rpcId);
-                     std::string nameRoll = rpcsrv.name();
-
-                     const GeomDet *whichdet1 = theG->idToDet(rpcId.rawId());
-                     const GlobalPoint &p1 = whichdet1->surface().toGlobal(LocalPoint(0,0,0));
-                     double rx=p1.x(); double ry=p1.y(); double rz=p1.z();
-
-            //         cout << "rpc roll : "<< nameRoll << " (x,y,z) "<< rx <<", "<<ry<<", " << rz << endl;
-                     gDxyz_ = sqrt((tz-rz)*(tz-rz)+(tx-rx)*(tx-rx)+(ty-ry)*(ty-ry));
-            //         cout << "dist : " << gDxyz_ << endl;
-
-                     if(gDxyz>gDxyz_)
+     if(upd2.isValid())
+     { 
+          double tx=upd2.globalPosition().x();
+          double ty=upd2.globalPosition().y();
+          double tz=upd2.globalPosition().z();
+      ////////////////
+          PropagationDirection pdirec = trajectory.direction();
+      //   SteppingHelixPropagator a = SteppingHelixPropagator(const MagneticField* field, dir):
+     
+      ////////////////
+     
+          const TransientTrackingRecHit *hit = &(*tMt.recHit());
+     
+      //   cout << "TrajStateOnSur: updi2 glo posi " << " (x,y,z) : "<< tx <<", "<<ty<<", " << tz << endl;
+      //   cout << "local position :(x,y,z) "<< upd2.localPosition().x() << ", "<< upd2.localPosition().y() << ", "<< upd2.localPosition().z() << endl;
+      //////////////////////////
+          double gDxyz=50, gDxyz_;
+          int mrpcid=0;
+     
+          std::set<DetId> detidS = detidAsso->getDetIdsCloseToAPoint( upd2.globalPosition(), 0.5);
+      //    std::set<DetId> detidS = nearRPCChamberFinder();
+          for(std::set<DetId>::const_iterator  detid2 = detidS.begin(); detid2 != detidS.end(); ++detid2)
+          {
+              DetId id(*detid2);
+     
+              const GeomDet *whichdet = theG->idToDet(id.rawId());
+              const RPCChamber *rpcChamber = dynamic_cast<const RPCChamber *>(whichdet);
+     
+              if(rpcChamber)
+              {
+               //      cout << "closet hit is RPC Chamber "<<  id.rawId()  << endl;
+                     RPCGeomServ servId(id.rawId());
+     
+                     std::vector< const RPCRoll*> roles = (rpcChamber->rolls());
+     
+                     const GlobalPoint &p = whichdet->surface().toGlobal(upd2.localPosition());
+     
+               //      cout << "RPC Chamber : " << servId.name() << "(x,y,z)" << p.x() << ", " << p.y() << ", " << p.z() << endl;
+     
+                     for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r)
                      {
-                          mrpcid = (int)(*r)->id();
-                          gDxyz=gDxyz_;
+     
+                          RPCDetId rpcId = (*r)->id();
+     
+                          RPCGeomServ rpcsrv(rpcId);
+                          std::string nameRoll = rpcsrv.name();
+     
+                          const GeomDet *whichdet1 = theG->idToDet(rpcId.rawId());
+                          const GlobalPoint &p1 = whichdet1->surface().toGlobal(LocalPoint(0,0,0));
+                          double rx=p1.x(); double ry=p1.y(); double rz=p1.z();
+     
+                 //         cout << "rpc roll : "<< nameRoll << " (x,y,z) "<< rx <<", "<<ry<<", " << rz << endl;
+                          gDxyz_ = sqrt((tz-rz)*(tz-rz)+(tx-rx)*(tx-rx)+(ty-ry)*(ty-ry));
+                 //         cout << "dist : " << gDxyz_ << endl;
+     
+                          if(gDxyz>gDxyz_)
+                          {
+                               mrpcid = (int)(*r)->id();
+                               gDxyz=gDxyz_;
+                          }
+     
                      }
-
-                }
-         
-         }
-     }  
-//      cout << "---" << endl;
-     if(mrpcid!=0)
-     {
-         TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, theG->idToDet(mrpcid)->surface());
-         double px=ptss.globalPosition().x();
-         double py=ptss.globalPosition().y();
-         double pz=ptss.globalPosition().z();
-
-        // cout << "TrajStateOnSur: ptss glo posi " << " (x,y,z) : "<< px <<", "<<py<<", " << pz << endl;
-        // cout << "local position :(x,y,z) "<< ptss.localPosition().x() << ", "<< ptss.localPosition().y() << ", "<< ptss.localPosition().z() << endl;
-
-      if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<100)
-      {
-         RPCDetId rpcid = mrpcid;
-         RPCGeomServ rpcsrv(rpcid);
-         std::string nameRoll = rpcsrv.name();
-
-         const GeomDet *whichdet = theG->idToDet(rpcid.rawId());
-         const GlobalPoint &p = whichdet->surface().toGlobal(ptss.localPosition());
-         double rx=p.x(); double ry=p.y(); double rz=p.z();
-
-        // cout << "RPC : "<< nameRoll << " (x,y,z) " << rx << ", " <<ry<< ", " << rz << endl;
-
-         locx = ptss.localPosition().x();
-         locy = ptss.localPosition().y();
-         detid = rpcid.rawId();
-
-         return true;
-       }
-       else
-       {
-       // cout << " I can not match a detetor!! ";
-        detid = 0;
-        locx= 0;
-        locy= 0;
-        return false;
-       }
-     }
-     else
-     {
-       // cout << " I can not match a detetor!! ";
-        detid = 0;
-        locx= 0;
-        locy= 0;
-        return false;
-     }
+              
+              }
+          }  
+      //      cout << "---" << endl;
+          if(mrpcid!=0)
+          {
+              TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, theG->idToDet(mrpcid)->surface());
+              if(ptss.isValid())
+              {
+                   double px=ptss.globalPosition().x();
+                   double py=ptss.globalPosition().y();
+                   double pz=ptss.globalPosition().z();
+                  
+                  // cout << "TrajStateOnSur: ptss glo posi " << " (x,y,z) : "<< px <<", "<<py<<", " << pz << endl;
+                  // cout << "local position :(x,y,z) "<< ptss.localPosition().x() << ", "<< ptss.localPosition().y() << ", "<< ptss.localPosition().z() << endl;
+                  
+                   if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<100)
+                   {
+                         RPCDetId rpcid = mrpcid;
+                         RPCGeomServ rpcsrv(rpcid);
+                         std::string nameRoll = rpcsrv.name();
+                     
+                         const GeomDet *whichdet = theG->idToDet(rpcid.rawId());
+                         const GlobalPoint &p = whichdet->surface().toGlobal(ptss.localPosition());
+                         double rx=p.x(); double ry=p.y(); double rz=p.z();
+                     
+                        // cout << "RPC : "<< nameRoll << " (x,y,z) " << rx << ", " <<ry<< ", " << rz << endl;
+                     
+                         locx = ptss.localPosition().x();
+                         locy = ptss.localPosition().y();
+                         detid = rpcid.rawId();
+                     
+                         return true;
+                    } else return false;
+               } else  return false;
+          } else  return false;
+     }else  return false;
 
 }
 
