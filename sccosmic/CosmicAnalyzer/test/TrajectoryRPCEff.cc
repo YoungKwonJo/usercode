@@ -3,18 +3,17 @@
 // Package:    TrajectoryRPCEff
 // Class:      TrajectoryRPCEff
 //
-/**\class TrajectoryRPCEff TrajectoryRPCEff.cc sccosmic/TrajectoryRPCEff/src/TrajectoryRPCEff.cc
+/**\class TrajectoryRPCEff TrajectoryRPCEff.cc sccosmic/CosmicAnalyzer/test/TrajectoryRPCEff.cc
 
  Description: <one line class summary>
 
-// This code is run with : Tracking Tools(http://higgs.skku.ac.kr/CMS/TrackingTools_CMSSW_2_1_10.tgz) 
 
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  Su Yong Choi
-//         Created:  Wed Jul  9 17:03:35 CEST 2008
+//         Created:  Wed Aug 5 19:02:58 2009 UTC (38 hours, 53 minutes ago) by youngjo 
 // $Id: TrajectoryRPCEff.cc,v 1.1 2009/08/05 19:02:58 youngjo Exp $
 //
 //
@@ -145,9 +144,35 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
         std::map<int, TH2F*> detrtMap_;
         std::map<int, TH2F*> detrmMap_;
         std::map<int, TH1F*> detrrMap_;
+
         TH1F *htrtjdiff; 
         TH2F *htrjtrachits;
         TH1F *hsize; 
+
+        TH1F *htracks_pt;
+        TH1F *hntracks;
+        TH2F *htracks_etaphi;
+        TH2F *hnvalidhits;
+        TH2F *hchi2prob;
+        TH2F *hchi2ndof;
+        TH2F *hqoverppull;
+        TH2F *htrackinnerxy;
+        TH2F *htrackouterxy;
+        TH1F *htrackinnerz;
+        TH1F *htrackouterz;
+        TH2F *htrackq;
+
+        TH2F *htrackrechitsxy;
+        TH1F *htrackrechitsz;
+
+        TH2F *htrackrechitsDTxy;
+        TH1F *htrackrechitsDTz;
+
+        TH2F *htrackrechitsRPCxy;
+        TH1F *htrackrechitsRPCz;
+
+        TH2F *htrackrechitsCSCxy;
+        TH1F *htrackrechitsCSCz;
 
     edm::Service<TFileService> fs;
     edm::ESHandle<DetIdAssociator> detidAsso;
@@ -180,6 +205,28 @@ theRPCRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("RPCRecSegmen
     htrjtrachits = fs->make<TH2F>("htrjtrachits", "hits  of trajectory and track ", 80, 0.0, 80.0, 80, 0.0, 80.0);
     hsize = fs->make<TH1F>("hsize","event count", 4, 0.0, 4.0);
 
+    htracks_pt = fs->make<TH1F>("htracks_pt", "Pt of track", 600, 0, 300);
+    hntracks = fs->make<TH1F>("hntracks", "Number of tracks", 20, 0.0, 20.0);
+    htracks_etaphi = fs->make<TH2F>("htracks_etaphi", "|#eta| #phi tracks", 50, -2.5, 2.5, 50, -3.1415, 3.14158);
+    htrackinnerxy = fs->make<TH2F>("htrackinnerxy", "y vs x of inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxy = fs->make<TH2F>("htrackouterxy", "y vs x of outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackinnerz = fs->make<TH1F>("htrackinnerz", "z of inner hit ", 100, -1500.0, 1500.0);
+    htrackouterz = fs->make<TH1F>("htrackouterz", "z of outer hit ", 100, -1500.0, 1500.0);
+    hnvalidhits = fs->make<TH2F>("hnvalidhits", "Number of hits on track", 50, -3.1415, 3.1415, 50, 0.0, 50.0);
+    hchi2prob = fs->make<TH2F>("hchi2prob", "#chi^2 probability of tracks", 50, -3.1415, 3.1415, 50, 0.0, 1.0);
+    hchi2ndof = fs->make<TH2F>("hchi2ndof", "Normalized #chi^2 of tracks", 50, -3.1415, 3.1415, 50, 0.0, 10.0);
+    hqoverppull = fs->make<TH2F>("hqoverppull", "qoverp pull of tracks", 50, -3.1415, 3.1415, 50, -1.0, 1.0);
+    htrackq = fs->make<TH2F>("htrackq", "q of tracks", 50, -3.1415, 3.1415, 50, -1.5, 1.5);
+
+    htrackrechitsxy = fs->make<TH2F>("htrackrechitsxy", "y vs x of rechits", 250, -1000.0, 1000.0, 250, -1000.0, 1000.0);
+    htrackrechitsz = fs->make<TH1F>("htrackrechitsz", "z of inner hit ", 500, -1500.0, 1500.0);
+    htrackrechitsDTxy = fs->make<TH2F>("htrackrechitsDTxy", "y vs x of DT rechits", 250, -1000.0, 1000.0, 250, -1000.0, 1000.0);
+    htrackrechitsDTz = fs->make<TH1F>("htrackrechitsDTz", "z of DT rechits ", 500, -1500.0, 1500.0);
+    htrackrechitsRPCxy = fs->make<TH2F>("htrackrechitsRPCxy", "y vs x of RPC rechits", 250, -1000.0, 1000.0, 250, -1000.0, 1000.0);
+    htrackrechitsRPCz = fs->make<TH1F>("htrackrechitsRPCz", "z of RPC rechits ", 500, -1500.0, 1500.0);
+    htrackrechitsCSCxy = fs->make<TH2F>("htrackrechitsCSCxy", "y vs x of CSC rechits", 250, -1000.0, 1000.0, 250, -1000.0, 1000.0);
+    htrackrechitsCSCz = fs->make<TH1F>("htrackrechitsCSCz", "z of CSC rechits ", 500, -1500.0, 1500.0);
+
 }
 
 
@@ -196,67 +243,6 @@ TrajectoryRPCEff::~TrajectoryRPCEff()
 // member functions
 //
 
-void TrajectoryRPCEff::printTrajectoryRecHits(const Trajectory &trajectory, 
-                                              ESHandle<GlobalTrackingGeometry> theG, edm::Handle<RPCRecHitCollection> allRPChits) {
-
-  TransientTrackingRecHit::ConstRecHitContainer rechits = trajectory.recHits();
-//  cout << "Size of the RecHit container: " << rechits.size();
-
-//  for (trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
-//    if ((*hit)->isValid())
-//  {
-  std::map<int, int> rpchitcheck;
-
-  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator recHit = rechits.begin();
-      recHit != rechits.end(); ++recHit)
-    if((*recHit)->isValid())
-  {
-      const GeomDet* geomDet = theG->idToDet((*recHit)->geographicalId());
-//      double r = geomDet->surface().position().perp();
-//      double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-
-  //    cout << " trajlogs - r:" << r << " Global position:" << geomDet->toGlobal((*recHit)->localPosition()) << endl;
-
-      const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(geomDet);
-      const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(geomDet);
-      const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(geomDet);
-
-      if(dtlayer || csclayer)
-      {
-            int detid; 
-	    float locx, locy;
-          //  std::cout << " trajlogs DT trj:  r:" << r << " Global position:" << geomDet->toGlobal((*recHit)->localPosition()) << std::endl;
-/*            if(TrajectoryclosestMeasurement(trajectory,geomDet->toGlobal((*recHit)->localPosition()),locx,locy, detid))
-            {
-               if(rpchitcheck[detid]<1)
-               {
-                   RPCGeomServ servId(detid);
-                   cout << "---tra"<<  servId.name()<<"-- " << detid <<", "<< locx << ", " << locy << endl;
-               
-                   SetFolderMuonDir(detid);
-                   rpchitcheck[detid]++;
-    
-                   detrtMap_[detid]->Fill(locx, locy);
-                   float residual, sum, residualy, recX, recY;
-                   if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY))
-                   {
-                      cout << "residual : "<< residual << endl;
-                      detrmMap_[detid]->Fill(locx, locy);
-                      detrrMap_[detid]->Fill(residual);
-                   }  
-               }
-            }
-*/
-      }
-      if(aroll)
-      {
-          RPCGeomServ servId((*recHit)->geographicalId());
-          std::cout << " trajlogs RPC trj: " << servId.name() << " Global position:" << geomDet->toGlobal((*recHit)->localPosition()) << std::endl;
-
-      }
-    
-  }
-}
 std::set<DetId> TrajectoryRPCEff::nearRPCChamberFinder()
 {
    std::set<DetId> setOfValidIds;
@@ -279,18 +265,18 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
           double tx=upd2.globalPosition().x();
           double ty=upd2.globalPosition().y();
           double tz=upd2.globalPosition().z();
+
       ////////////////
-          PropagationDirection pdirec = trajectory.direction();
+      //    PropagationDirection pdirec = trajectory.direction();
       //   SteppingHelixPropagator a = SteppingHelixPropagator(const MagneticField* field, dir):
-     
       ////////////////
-     
-          const TransientTrackingRecHit *hit = &(*tMt.recHit());
-     
+      //
+      //    const TransientTrackingRecHit *hit = &(*tMt.recHit());
       //   cout << "TrajStateOnSur: updi2 glo posi " << " (x,y,z) : "<< tx <<", "<<ty<<", " << tz << endl;
       //   cout << "local position :(x,y,z) "<< upd2.localPosition().x() << ", "<< upd2.localPosition().y() << ", "<< upd2.localPosition().z() << endl;
       //////////////////////////
-          double gDxyz=50, gDxyz_;
+
+          double gDxyz=200, gDxyz_;
           int mrpcid=0;
      
           std::set<DetId> detidS = detidAsso->getDetIdsCloseToAPoint( upd2.globalPosition(), 0.5);
@@ -367,6 +353,7 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
                          locx = ptss.localPosition().x();
                          locy = ptss.localPosition().y();
                          detid = rpcid.rawId();
+                       //  const float stripPredicted =aroll->strip(LocalPoint(locx,locy,0.));
                      
                          return true;
                     } else return false;
@@ -445,10 +432,11 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<reco::TrackCollection> tracks;
     iEvent.getByLabel(theInputLabel.label(),tracks);
 
+    hsize->Fill(1);
     if(tracks->empty()) return;
-  //  if(tracks->size()<20) return;
-    
-    // Get the Trajectory collection from the event
+     hntracks->Fill(tracks->size());
+
+//    Get the Trajectory collection from the event
 //    Handle<Trajectories> trajectories;
 //    iEvent.getByLabel(theInputLabel,trajectories);
 
@@ -481,34 +469,6 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     MuonTransientTrackingRecHit::MuonRecHitContainer allHits;
 
     std::vector<const TrackingRecHit *> alltrackrechits;
-/*
-    for(Trajectories::const_iterator trajectory = trajectories->begin();
-       trajectory != trajectories->end(); ++trajectory)
-    {
-//         printTrajectoryRecHits(*trajectory, theG, allRPChits);
-    }
-
-
-    for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
-       it != assoMap->end(); ++it)
-    {
-
-         vector<Trajectory> traj = it->key;
-         const reco::TrackRef tk = it->val;
-   
-         // Check the difference in Pt
-         reco::TransientTrack track(tk,&*theMGField,theG);
-   
-         int diff = track.recHitsSize()- traj->recHits().size();
-   
-        // if (_debug)
-         cout << "track and trajectory Difference: " << diff << endl;
-         htrtjdiff->Fill(diff);
-         htrjtrachits->Fill(traj->recHits().size(), track.recHitsSize());
-
-    }
-*/
-    hsize->Fill(1);
 
     int detid;
     float locx, locy;
@@ -516,8 +476,25 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     for (TrackCollection::const_iterator track = tracks->begin(); track !=tracks->end(); track++)
     {
+        htracks_pt->Fill(track->pt());          //  track transverse momentum
 
-         Trajectories trajectories = theTrackTransformer->transform(*track);
+        htracks_etaphi->Fill(track->eta(), track->phi()); //  pseudorapidity and azimuthal angle of momentum vector
+
+        htrackinnerxy->Fill(track->innerPosition().X(), track->innerPosition().Y()); //  position of the innermost hit
+        htrackouterxy->Fill(track->outerPosition().X(), track->outerPosition().Y()); //  position of the outermost hit
+        htrackinnerz->Fill(track->innerPosition().Z()); // position of the innermost hit
+        htrackouterz->Fill(track->outerPosition().Z()); // position of the outermost hit
+
+        const reco::HitPattern& p = track->hitPattern();
+        hnvalidhits->Fill(track->innerPosition().phi(), p.numberOfHits()); // azimuthal angle of Innermost hit, number Of Hits
+
+        hchi2prob->Fill(track->innerPosition().phi(), TMath::Prob(track->chi2(), track->ndof())); // 
+        hchi2ndof->Fill(track->innerPosition().phi(), track->normalizedChi2()); // chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
+        hqoverppull->Fill(track->innerPosition().phi(), track->qoverp()/track->qoverpError()); // error on signed transverse curvature
+        htrackq->Fill(track->innerPosition().phi(), track->charge()); // track electric charge
+
+
+        Trajectories trajectories = theTrackTransformer->transform(*track);
 
         for (trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
         {
@@ -526,32 +503,52 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                  const GeomDet *whichdet = theG->idToDet((*hit)->geographicalId());
                  const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(whichdet);
                  const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(whichdet);
-                 if ((*hit)->isValid() &&(dtlayer || csclayer) )
+
+                 const GlobalPoint &p = theG->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
+                 htrackrechitsxy->Fill(p.x(), p.y());
+                 htrackrechitsz->Fill(p.z());
+
+                 if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==1)
                  {
-        //             alltrackrechits.push_back(&(*(*hit)));
-                       for(Trajectories::const_iterator trajectory = trajectories.begin();
-                          trajectory != trajectories.end(); ++trajectory)
-                       {
-                            if(TrajectoryclosestMeasurement(*trajectory, whichdet->toGlobal((*hit)->localPosition()), locx, locy, detid))
-                            {
-                               if(rpccheck[detid]<1)
-                               {
-                                    RPCGeomServ servId(detid);
-                                    cout << "---tra"<<  servId.name()<<"-- " << detid <<", "<< locx << ", " << locy << endl;
-                                    SetFolderMuonDir(detid);
-                                    rpccheck[detid]++;
-                       
-                                    detrtMap_[detid]->Fill(locx, locy);
-                                    float residual, sum, residualy, recX, recY;
-                                    if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY))
-                                    {
-                                       cout << "residual : "<< residual << endl;
-                                       detrmMap_[detid]->Fill(locx, locy);
-                                       detrrMap_[detid]->Fill(residual);
-                                    }
-                               }
-                            }
-                       }
+                     htrackrechitsDTxy->Fill(p.x(), p.y());
+                     htrackrechitsDTz->Fill(p.z());
+                 }
+                 else if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==2)
+                 {
+                     htrackrechitsCSCxy->Fill(p.x(), p.y());
+                     htrackrechitsCSCz->Fill(p.z());
+                 }
+                 else if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==3)
+                 {
+                     htrackrechitsRPCxy->Fill(p.x(), p.y());
+                     htrackrechitsRPCz->Fill(p.z());
+                 }
+                 if (dtlayer || csclayer )
+                 {
+             //         alltrackrechits.push_back(&(*(*hit)));
+                      for(Trajectories::const_iterator trajectory = trajectories.begin();
+                         trajectory != trajectories.end(); ++trajectory)
+                      {
+                           if(TrajectoryclosestMeasurement(*trajectory, whichdet->toGlobal((*hit)->localPosition()), locx, locy, detid))
+                           {
+                                if(rpccheck[detid]<1)
+                                {
+                                     RPCGeomServ servId(detid);
+                                     cout << "---tra"<<  servId.name()<<"-- " << detid <<", "<< locx << ", " << locy << endl;
+                                     SetFolderMuonDir(detid);
+                                     rpccheck[detid]++;
+                               
+                                     detrtMap_[detid]->Fill(locx, locy);
+                                     float residual, sum, residualy, recX, recY;
+                                     if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY))
+                                     {
+                                        cout << "residual : "<< residual << endl;
+                                        detrmMap_[detid]->Fill(locx, locy);
+                                        detrrMap_[detid]->Fill(residual);
+                                     }
+                                }
+                           }
+                      }
                 
                  }
             }
