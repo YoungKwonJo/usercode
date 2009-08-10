@@ -101,7 +101,7 @@ typedef MuonDigiCollection<DTChamberId, DTLocalTrigger> DTLocalTriggerCollection
 typedef std::vector<Trajectory> Trajectories;
 
 bool findmatch(const  edm::Handle<DTRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual);
-bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum, float &residualyy, float &recX, float &recY);
+bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum, float &residualyy, float &recX, float &recY,  int &mstrip);
 bool findmatch(const edm::Handle<CSCRecHit2DCollection> &hitcoll, int detid, float locx, float locy, float &residual);
 
 double maxdist = 7777777.0;
@@ -144,6 +144,9 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
         std::map<int, TH2F*> detrtMap_;
         std::map<int, TH2F*> detrmMap_;
         std::map<int, TH1F*> detrrMap_;
+
+        std::map<int, TH1F*> detsrtMap_;
+        std::map<int, TH1F*> detsrmMap_;
 
         TH1F *htrtjdiff; 
         TH2F *htrjtrachits;
@@ -276,11 +279,11 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
       //   cout << "local position :(x,y,z) "<< upd2.localPosition().x() << ", "<< upd2.localPosition().y() << ", "<< upd2.localPosition().z() << endl;
       //////////////////////////
 
-          double gDxyz=200, gDxyz_;
+          double gDxyz=50, gDxyz_;
           int mrpcid=0;
      
-          std::set<DetId> detidS = detidAsso->getDetIdsCloseToAPoint( upd2.globalPosition(), 0.5);
-      //    std::set<DetId> detidS = nearRPCChamberFinder();
+      //    std::set<DetId> detidS = detidAsso->getDetIdsCloseToAPoint( upd2.globalPosition(), 0.5);
+          std::set<DetId> detidS = nearRPCChamberFinder();
           for(std::set<DetId>::const_iterator  detid2 = detidS.begin(); detid2 != detidS.end(); ++detid2)
           {
               DetId id(*detid2);
@@ -308,19 +311,24 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
                           std::string nameRoll = rpcsrv.name();
      
                           const GeomDet *whichdet1 = theG->idToDet(rpcId.rawId());
-                          const GlobalPoint &p1 = whichdet1->surface().toGlobal(LocalPoint(0,0,0));
-                          double rx=p1.x(); double ry=p1.y(); double rz=p1.z();
-     
-                 //         cout << "rpc roll : "<< nameRoll << " (x,y,z) "<< rx <<", "<<ry<<", " << rz << endl;
-                          gDxyz_ = sqrt((tz-rz)*(tz-rz)+(tx-rx)*(tx-rx)+(ty-ry)*(ty-ry));
-                 //         cout << "dist : " << gDxyz_ << endl;
-     
-                          if(gDxyz>gDxyz_)
+                         // const GlobalPoint &p1 = whichdet1->surface().toGlobal(upd2.localPosition()); // LocalPoint(0,0,0));
+                         // double rx=p1.x(); double ry=p1.y(); double rz=p1.z();
+                          TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, theG->idToDet(rpcId)->surface());
+                          if(ptss.isValid())
                           {
-                               mrpcid = (int)(*r)->id();
-                               gDxyz=gDxyz_;
-                          }
-     
+                                const GlobalPoint &p1 = whichdet1->surface().toGlobal(ptss.localPosition()); // LocalPoint(0,0,0));
+                                double rx=p1.x(); double ry=p1.y(); double rz=p1.z();
+                              
+                 //               cout << "rpc roll : "<< nameRoll << " (x,y,z) "<< rx <<", "<<ry<<", " << rz << endl;
+                                gDxyz_ = sqrt((tz-rz)*(tz-rz)+(tx-rx)*(tx-rx)+(ty-ry)*(ty-ry));
+                 //               cout << "dist : " << gDxyz_ << endl;
+                              
+                                if(gDxyz>gDxyz_)
+                                {
+                                     mrpcid = (int)(*r)->id();
+                                     gDxyz=gDxyz_;
+                                }
+                          } 
                      }
               
               }
@@ -338,7 +346,7 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
                   // cout << "TrajStateOnSur: ptss glo posi " << " (x,y,z) : "<< px <<", "<<py<<", " << pz << endl;
                   // cout << "local position :(x,y,z) "<< ptss.localPosition().x() << ", "<< ptss.localPosition().y() << ", "<< ptss.localPosition().z() << endl;
                   
-                   if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<100)
+                   if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<50)
                    {
                          RPCDetId rpcid = mrpcid;
                          RPCGeomServ rpcsrv(rpcid);
@@ -405,6 +413,13 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
            detrrMap_[detid] =  dirSector.make<TH1F>(Form("RPCTtrr%d_Residure", detid),
                                         Form("%s Residure local X", servId.name().c_str()),
                                    400, -20, 20);
+
+           detsrtMap_[detid] = dirSector.make<TH1F>(Form("RPCSrt%d", detid),
+                                        Form("%s strips trajectory", servId.name().c_str()),
+                                   95, 0.5, 95.5);
+           detsrmMap_[detid] = dirSector.make<TH1F>(Form("RPCSrm%d", detid),
+                                        Form("%s strips matched trajectory", servId.name().c_str()),
+                                   95, 0.5, 95.5);
 
     }
      return true;
@@ -539,13 +554,23 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                                      rpccheck[detid]++;
                                
                                      detrtMap_[detid]->Fill(locx, locy);
+
+                                     const GeomDet *whichdet1 = theG->idToDet(detid);
+                                     const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet1);
+                                     const float stripPredicted =aroll->strip(LocalPoint(locx,locy,0.));
+                                     detsrtMap_[detid]->Fill(stripPredicted);
+                                     int mstrip;
                                      float residual, sum, residualy, recX, recY;
-                                     if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY))
+                                     if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY, mstrip))
                                      {
                                         cout << "residual : "<< residual << endl;
                                         detrmMap_[detid]->Fill(locx, locy);
                                         detrrMap_[detid]->Fill(residual);
+
+                                      if(mstrip == stripPredicted)  detsrmMap_[detid]->Fill(mstrip);
+
                                      }
+
                                 }
                            }
                       }
@@ -615,7 +640,7 @@ bool findmatch(const edm::Handle<CSCRecHit2DCollection> &hitcoll, int detid, flo
     return matchfound;
 }
 
-bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum,float &residualy, float &recX, float &recY)
+bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float locx, float locy, float &residual,float &sum,float &residualy, float &recX, float &recY, int &mstrip)
 {
     bool matchfound = false;
     double maxres = maxdist;
@@ -624,6 +649,7 @@ bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float
     {
         const GeomDet *whichdet = theG->idToDet(hit->geographicalId());
         //const GlobalPoint &p = whichdet->surface().toGlobal(hit->localPosition());
+        const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet);
         RPCGeomServ servId(detid);
 
   //     if (hit->geographicalId().rawId()==detid)  cout << "!! " << maxres <<", "<< fabs(locx-hit->localPosition().x()) << " !!matched "<< detid << servId.name();
@@ -637,6 +663,9 @@ bool findmatch(const edm::Handle<RPCRecHitCollection> &hitcoll, int detid, float
             sum = locx+hit->localPosition().x();
             recX = hit->localPosition().x();
             recY = hit->localPosition().y();
+
+            mstrip = aroll->strip(LocalPoint( hit->localPosition().x(), hit->localPosition().y(),0.));
+
         }
     }
 
