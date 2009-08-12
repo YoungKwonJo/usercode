@@ -1,0 +1,120 @@
+<flags EDM_PLUGIN=1>
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+
+<use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/Track>
+
+<use name=DataFormats/Common>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/CSCObjects>
+
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/Records>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/MuonDetId>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/TrackerTopology>
+<use name=Geometry/RPCGeometry>
+<use name=RecoMuon/DetLayers>
+
+<use name=DataFormats/RPCDigi>
+<use name=DataFormats/RPCRecHit>
+<use name=DataFormats/CSCDigi>
+<use name=DataFormats/DTDigi>
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/HcalDigi>
+<use name=DataFormats/SiPixelDigi>
+<use name=DataFormats/SiStripDigi>
+
+<use name=CondFormats/L1TObjects>
+<use name=DataFormats/LTCDigi>
+<use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/L1CSCTrackFinder>
+<use name=DataFormats/L1DTTrackFinder>
+<use name=DataFormats/L1CaloTrigger>
+<use name=DataFormats/L1GlobalCaloTrigger>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=L1Trigger/RegionalCaloTrigger>
+
+<use name=PhysicsTools/UtilAlgos>
+
+<use name=RecoMuon/DetLayers>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackPropagation/SteppingHelixPropagator>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/PatternTools>
+<use name="TrackingTools/MeasurementDet">
+<use name=TrackingTools/TrackRefitter>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TrackAssociator>
+
+
+<use name="DataFormats/MuonReco">
+<use name="DataFormats/TrackReco">
+<use name="DataFormats/TrackingRecHit">
+<use name="DataFormats/TrajectorySeed">
+<use name="RecoMuon/MeasurementDet">
+<use name="RecoMuon/Navigation">
+<use name="RecoMuon/TrackingTools">
+<use name="RecoMuon/GlobalTrackingTools">
+<use name="RecoMuon/TransientTrackingRecHit">
+<use name="TrackingTools/DetLayers">
+<use name="TrackingTools/GeomPropagators">
+<use name="TrackingTools/KalmanUpdators">
+<use name="TrackingTools/PatternTools">
+<use name="TrackingTools/Records">
+<use name="TrackingTools/TrackFitters">
+<use name="TrackingTools/TrackRefitter">
+<use name="TrackingTools/TrajectoryState">
+<use name="TrackingTools/TransientTrackingRecHit">
+<use name=MagneticField/Engine>
+<use name=DQMServices/Core>
+
+<use name=boost>
+<use name=CLHEP>
+<use name=rootgraphics>
+<use name=rootrflx>
+<use name=root>
+<export>
+  <lib name=PerformanceMyEff>
+  <use name=FWCore/Framework>
+  <use name=FWCore/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/RPCGeometry>
+  <use name=RecoMuon/DetLayers>
+  <use name=Geometry/Records>
+
+  <use name=CondFormats/CSCObjects>
+  <use name=DataFormats/CSCDigi>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/MuonDetId>
+  <use name=Geometry/CSCGeometry>
+  <use name=DQMServices/Core>
+  <use name=Geometry/DTGeometry>
+  <use name=DataFormats/DTDigi>
+
+<use name=RecoMuon/DetLayers>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackPropagation/SteppingHelixPropagator>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/PatternTools>
+
+  <use name=boost>
+  <use name=CLHEP>
+  <use name=rootgraphics>
+  <use name=rootrflx>
+  <use name=root>
+</export>
