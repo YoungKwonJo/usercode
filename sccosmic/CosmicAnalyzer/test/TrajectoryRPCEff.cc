@@ -349,8 +349,8 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
                   // cout << "TrajStateOnSur: ptss glo posi " << " (x,y,z) : "<< px <<", "<<py<<", " << pz << endl;
                   // cout << "local position :(x,y,z) "<< ptss.localPosition().x() << ", "<< ptss.localPosition().y() << ", "<< ptss.localPosition().z() << endl;
                   
-            //       if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<50)
-            //       {
+                   if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<50)
+                   {
                          RPCDetId rpcid = mrpcid;
                          RPCGeomServ rpcsrv(rpcid);
                          std::string nameRoll = rpcsrv.name();
@@ -367,7 +367,7 @@ bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory
                        //  const float stripPredicted =aroll->strip(LocalPoint(locx,locy,0.));
                      
                          return true;
-             //       } else return false;
+                    } else return false;
                } else  return false;
           } else  return false;
      }else  return false;
