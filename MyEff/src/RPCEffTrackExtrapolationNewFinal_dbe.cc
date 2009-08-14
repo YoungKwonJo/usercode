@@ -173,7 +173,7 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 
     LogTrace("RPCEffTrackExtrapolation") <<"Dentro Analyzer"<<std::endl;
 
-    theTrackTransformer->setServices(iSetup); //add for trajectory of cosmicmuon
+    theTrackTransformer->setServices(iSetup);
     theService->update(iSetup);
     theMeasurementExtractor->setEvent(iEvent);
     
@@ -218,7 +218,7 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
       for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
 	counttrack++;
 
-	Trajectories trajectories = theTrackTransformer->transform(*staTrack);  //add for trajectory of cosmicmuon 
+	Trajectories trajectories = theTrackTransformer->transform(*staTrack);
 	reco::TransientTrack track(*staTrack,&*theMGField,TrackingGeometry);
 	
 	LogTrace("RPCEffTrackExtrapolation") << "Loops on the track!"<<std::endl;  
@@ -312,11 +312,11 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	    const BoundPlane & RPCSurface = rollasociated->surface();
 	    GlobalPoint rpRPC = RPCSurface.toGlobal(LocalPoint(0.,0.,0.));
 
-	    FreeTrajectoryState* fts;
+	    FreeTrajectoryState* fts2;
 	    TrajectoryMeasurement  tMt;
 	    float minDistance = 999.;
 	    
-	    for(Trajectories::const_iterator trajectory = trajectories.begin();  // added for trajectory from YoungKwon's code
+	    for(Trajectories::const_iterator trajectory = trajectories.begin();
 		trajectory != trajectories.end(); ++trajectory){
 
 	      TransientTrackingRecHit::ConstRecHitContainer rechits = trajectory->recHits();
@@ -353,10 +353,11 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	      }
 	    }
 	  
-	    TrajectoryStateOnSurface upd2 = (tMt).updatedState(); // added for trajectory from YoungKwon Jo's code 
-	    if (upd2.isValid()) fts = upd2.freeState(true); 
+	    TrajectoryStateOnSurface upd2 = (tMt).updatedState();
+	    if (!upd2.isValid()) continue;
+	    fts2 = upd2.freeState(true);
 
-	    TrajectoryStateOnSurface tsosAtRPC = theService->propagator(thePropagatorName)->propagate(*fts,RPCSurface);
+	    TrajectoryStateOnSurface tsosAtRPC = theService->propagator(thePropagatorName)->propagate(*fts2,RPCSurface);
 	    
 	    LocalPoint xmin; LocalPoint xmax; float rsize; float stripl; float stripw;
 	    
@@ -422,7 +423,7 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	    int efficiency7 = 0;
 	    int efficiency8 = 0;
 	    
-	    MeasurementContainer result = theMeasurementExtractor->measurements((*itdet), tsos,*theService->propagator(thePropagatorName), *theEstimator, iEvent);
+	    MeasurementContainer result = theMeasurementExtractor->measurements((*itdet), tsosAtRPC,*theService->propagator(thePropagatorName), *theEstimator, iEvent);
 	    
 	    std::cout<<"Understanding ---> Roll and Extrapolated point: "<<"Event num: "<<nevent<<"  "<<counttrack<<"  "<<nameRoll<<"  "<<PointRollGlobal<<std::endl;
 
