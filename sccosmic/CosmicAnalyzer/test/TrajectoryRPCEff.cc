@@ -44,7 +44,9 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
-
+#include <DataFormats/GeometrySurface/interface/LocalError.h>
+#include <DataFormats/GeometryVector/interface/LocalPoint.h>
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/DTDigi/interface/DTLocalTrigger.h>
 #include <DataFormats/MuonData/interface/MuonDigiCollection.h>
@@ -87,6 +89,8 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForCosmicMuons.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
@@ -119,9 +123,8 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
         ~TrajectoryRPCEff();
 
     protected:
-        bool TrajectoryclosestMeasurement(const Trajectory &,   GlobalPoint , float &, float &, int &, int ) ;
         bool SetFolderMuonDir(int );
-        std::set<DetId> nearRPCChamberFinder();
+        std::set<DetId> AllRPCChamber();
 
     private:
         virtual void beginJob(const edm::EventSetup&) ;
@@ -248,7 +251,7 @@ TrajectoryRPCEff::~TrajectoryRPCEff()
 // member functions
 //
 
-std::set<DetId> TrajectoryRPCEff::nearRPCChamberFinder()
+std::set<DetId> TrajectoryRPCEff::AllRPCChamber()
 {
    std::set<DetId> setOfValidIds;
    // RPC
@@ -258,120 +261,6 @@ std::set<DetId> TrajectoryRPCEff::nearRPCChamberFinder()
      if (RPCChamber* rpc = dynamic_cast< RPCChamber*>(*it)) setOfValidIds.insert(rpc->id());
 
    return setOfValidIds;
-}
-
-bool TrajectoryRPCEff::TrajectoryclosestMeasurement(const Trajectory &trajectory,
-                                            GlobalPoint GlPt , float &locx, float &locy, int &detid, int dtcscid) 
-{
-     TrajectoryMeasurement  tMt = trajectory.closestMeasurement(GlPt);
-     TrajectoryStateOnSurface upd2 = (tMt).updatedState();
-     if(upd2.isValid())
-     { 
-          double tx=upd2.globalPosition().x();
-          double ty=upd2.globalPosition().y();
-          double tz=upd2.globalPosition().z();
-
-          double gDxyz=999., gDxyz_;
-          int mrpcid=0;
-     
-      //    std::set<DetId> detidS = detidAsso->getDetIdsCloseToAPoint( upd2.globalPosition(), 0.5);
-          std::set<DetId> detidS = nearRPCChamberFinder();
-          for(std::set<DetId>::const_iterator  detid2 = detidS.begin(); detid2 != detidS.end(); ++detid2)
-          {
-              DetId id(*detid2);
-              RPCDetId rpcid(*detid2);     
-              const GeomDet *whichdet = theG->idToDet(id.rawId());
-              const RPCChamber *rpcChamber = dynamic_cast<const RPCChamber *>(whichdet);
-
-              bool SameState = false;
-              const GeomDet *geomDet = theG->idToDet(dtcscid);
-              if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::DT)
-              {
-                   DTChamberId chdtid(geomDet->geographicalId().rawId());
-                   if (chdtid.wheel() == rpcid.ring() && chdtid.sector() == rpcid.sector() && chdtid.station() == rpcid.station())
-                   {
-                     SameState = true;
-                   }
-              }
-              else if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::CSC)
-              {
-                    CSCDetId chdtid(geomDet->geographicalId().rawId());
-                    if (chdtid.ring() == rpcid.ring() && chdtid.station() == rpcid.station())
-                    {
-                      SameState = true;
-                    }   
-              }   
-     
-              if(rpcChamber && SameState == true)
-              {
-                     RPCGeomServ servId(id.rawId());
-     
-                     std::vector< const RPCRoll*> roles = (rpcChamber->rolls());
-                     for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r)
-                     {
-     
-                          RPCDetId rpcId = (*r)->id();
-     
-                          RPCGeomServ rpcsrv(rpcId);
-                          std::string nameRoll = rpcsrv.name();
-     
-                          const GeomDet *whichdet1 = theG->idToDet(rpcId.rawId());
-                          TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, theG->idToDet(rpcId)->surface());
-                          if(ptss.isValid())
-                          {
-                                const GlobalPoint &p1 = whichdet1->surface().toGlobal(ptss.localPosition()); // LocalPoint(0,0,0));
-                                double rx=p1.x(); double ry=p1.y(); double rz=p1.z();
-                              
-                 //               cout << "rpc roll : "<< nameRoll << " (x,y,z) "<< rx <<", "<<ry<<", " << rz << endl;
-                                gDxyz_ = sqrt((tz-rz)*(tz-rz)+(tx-rx)*(tx-rx)+(ty-ry)*(ty-ry));
-                 //               cout << "dist : " << gDxyz_ << endl;
-                              
-                                if(gDxyz>gDxyz_)
-                                {
-                                     mrpcid = (int)(*r)->id();
-                                     gDxyz=gDxyz_;
-                                }
-                          } 
-                     }
-              
-              }
-          }  
-      //      cout << "---" << endl;
-          if(mrpcid!=0)
-          {
-              TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, theG->idToDet(mrpcid)->surface());
-              if(ptss.isValid())
-              {
-                   double px=ptss.globalPosition().x();
-                   double py=ptss.globalPosition().y();
-                   double pz=ptss.globalPosition().z();
-                  
-                  // cout << "TrajStateOnSur: ptss glo posi " << " (x,y,z) : "<< px <<", "<<py<<", " << pz << endl;
-                  // cout << "local position :(x,y,z) "<< ptss.localPosition().x() << ", "<< ptss.localPosition().y() << ", "<< ptss.localPosition().z() << endl;
-                  
-                   if(fabs(ptss.localPosition().x())<100 && fabs(ptss.localPosition().y())<50)
-                   {
-                         RPCDetId rpcid = mrpcid;
-                         RPCGeomServ rpcsrv(rpcid);
-                         std::string nameRoll = rpcsrv.name();
-                     
-                         const GeomDet *whichdet = theG->idToDet(rpcid.rawId());
-                         const GlobalPoint &p = whichdet->surface().toGlobal(ptss.localPosition());
-                         double rx=p.x(); double ry=p.y(); double rz=p.z();
-                     
-                        // cout << "RPC : "<< nameRoll << " (x,y,z) " << rx << ", " <<ry<< ", " << rz << endl;
-                     
-                         locx = ptss.localPosition().x();
-                         locy = ptss.localPosition().y();
-                         detid = rpcid.rawId();
-                       //  const float stripPredicted =aroll->strip(LocalPoint(locx,locy,0.));
-                     
-                         return true;
-                    } else return false;
-               } else  return false;
-          } else  return false;
-     }else  return false;
-
 }
 
 bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
@@ -460,6 +349,8 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 //    Handle<TrajTrackAssociationCollection> assoMap;
 //    iEvent.getByLabel(theInputLabel,assoMap);
+    edm::ESHandle<RPCGeometry> rpcGeo;
+    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
     edm::Handle<reco::MuonTrackLinksCollection> muHandle;
     edm::ESHandle<TransientTrackBuilder> ttrackBuilder;
@@ -488,101 +379,175 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     std::vector<const TrackingRecHit *> alltrackrechits;
 
-    int detid;
-    float locx, locy;
     std::map<int, int> rpccheck;
 
     for (TrackCollection::const_iterator track = tracks->begin(); track !=tracks->end(); track++)
     {
-        htracks_pt->Fill(track->pt());          //  track transverse momentum
+       htracks_pt->Fill(track->pt());          //  track transverse momentum
 
-        htracks_etaphi->Fill(track->eta(), track->phi()); //  pseudorapidity and azimuthal angle of momentum vector
+       htracks_etaphi->Fill(track->eta(), track->phi()); //  pseudorapidity and azimuthal angle of momentum vector
 
-        htrackinnerxy->Fill(track->innerPosition().X(), track->innerPosition().Y()); //  position of the innermost hit
-        htrackouterxy->Fill(track->outerPosition().X(), track->outerPosition().Y()); //  position of the outermost hit
-        htrackinnerz->Fill(track->innerPosition().Z()); // position of the innermost hit
-        htrackouterz->Fill(track->outerPosition().Z()); // position of the outermost hit
+       htrackinnerxy->Fill(track->innerPosition().X(), track->innerPosition().Y()); //  position of the innermost hit
+       htrackouterxy->Fill(track->outerPosition().X(), track->outerPosition().Y()); //  position of the outermost hit
+       htrackinnerz->Fill(track->innerPosition().Z()); // position of the innermost hit
+       htrackouterz->Fill(track->outerPosition().Z()); // position of the outermost hit
 
-        const reco::HitPattern& p = track->hitPattern();
-        hnvalidhits->Fill(track->innerPosition().phi(), p.numberOfHits()); // azimuthal angle of Innermost hit, number Of Hits
+       const reco::HitPattern& p = track->hitPattern();
+       hnvalidhits->Fill(track->innerPosition().phi(), p.numberOfHits()); // azimuthal angle of Innermost hit, number Of Hits
 
-        hchi2prob->Fill(track->innerPosition().phi(), TMath::Prob(track->chi2(), track->ndof())); // 
-        hchi2ndof->Fill(track->innerPosition().phi(), track->normalizedChi2()); // chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
-        hqoverppull->Fill(track->innerPosition().phi(), track->qoverp()/track->qoverpError()); // error on signed transverse curvature
-        htrackq->Fill(track->innerPosition().phi(), track->charge()); // track electric charge
+       hchi2prob->Fill(track->innerPosition().phi(), TMath::Prob(track->chi2(), track->ndof())); // 
+       hchi2ndof->Fill(track->innerPosition().phi(), track->normalizedChi2()); // chi-squared divided by n.d.o.f. (or chi-squared * 1e6 if n.d.o.f. is zero)
+       hqoverppull->Fill(track->innerPosition().phi(), track->qoverp()/track->qoverpError()); // error on signed transverse curvature
+       htrackq->Fill(track->innerPosition().phi(), track->charge()); // track electric charge
 
+       Trajectories trajectories = theTrackTransformer->transform(*track);
 
-        Trajectories trajectories = theTrackTransformer->transform(*track);
+       std::set<DetId> detidS = AllRPCChamber();
+       for(std::set<DetId>::const_iterator  detid2 = detidS.begin(); detid2 != detidS.end(); ++detid2)
+       {
 
-        for (trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
-        {
-            if ((*hit)->isValid())
+          RPCDetId rpcid(*detid2);
+          const GeomDet *whichdet = theG->idToDet(rpcid.rawId());
+          const RPCChamber *rpcChamber = dynamic_cast<const RPCChamber *>(whichdet);
+          
+          std::vector< const RPCRoll*> roles = (rpcChamber->rolls());
+          for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r)
+          {
+            RPCDetId rpcId = (*r)->id();
+            const GeomDet *whichdet3 = theG->idToDet((*r)->id());
+            const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet3);
+            const BoundPlane & RPCSurface = aroll->surface();
+            GlobalPoint rpRPC = RPCSurface.toGlobal(LocalPoint(0.,0.,0.));
+
+            const GlobalPoint &p = theG->idToDet((*r)->id())->surface().toGlobal(LocalPoint(0,0,0));
+            bool SameSS = false;
+          
+            double minDistence=999.; int dtcscid;
+            for (trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
             {
-                 const GeomDet *whichdet = theG->idToDet((*hit)->geographicalId());
-                 const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(whichdet);
-                 const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(whichdet);
-
-                 const GlobalPoint &p = theG->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
-                 htrackrechitsxy->Fill(p.x(), p.y());
-                 htrackrechitsz->Fill(p.z());
-
-                 if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==1)
-                 {
-                     htrackrechitsDTxy->Fill(p.x(), p.y());
-                     htrackrechitsDTz->Fill(p.z());
-                 }
-                 else if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==2)
-                 {
-                     htrackrechitsCSCxy->Fill(p.x(), p.y());
-                     htrackrechitsCSCz->Fill(p.z());
-                 }
-                 else if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==3)
-                 {
-                     htrackrechitsRPCxy->Fill(p.x(), p.y());
-                     htrackrechitsRPCz->Fill(p.z());
-                 }
-                 if (dtlayer || csclayer )
-                 {
-             //         alltrackrechits.push_back(&(*(*hit)));
-                      for(Trajectories::const_iterator trajectory = trajectories.begin();
-                         trajectory != trajectories.end(); ++trajectory)
-                      {
-                           if(TrajectoryclosestMeasurement(*trajectory, whichdet->toGlobal((*hit)->localPosition()), locx, locy, detid, (*hit)->geographicalId()))
-                           {
-                            //    if(rpccheck[detid]<1)
-                            //    {
-                                     RPCGeomServ servId(detid);
-                                     cout << "---tra"<<  servId.name()<<"-- " << detid <<", "<< locx << ", " << locy << endl;
-                                     SetFolderMuonDir(detid);
-                                     rpccheck[detid]++;
-                               
-                                     detrtMap_[detid]->Fill(locx, locy);
-
-                                     const GeomDet *whichdet1 = theG->idToDet(detid);
-                                     const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet1);
-                                     const float stripPredicted =aroll->strip(LocalPoint(locx,locy,0.));
-                                     detsrtMap_[detid]->Fill(stripPredicted);
-                                     int mstrip;
-                                     float residual, sum, residualy, recX, recY;
-                                     if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY, mstrip))
-                                     {
-                                        cout << "residual : "<< residual << endl;
-                                        detrmMap_[detid]->Fill(locx, locy);
-                                        detrrMap_[detid]->Fill(residual);
-
-                                      if(mstrip == stripPredicted)  detsrmMap_[detid]->Fill(mstrip);
-
-                                     }
-
-                            //    }
-                           }
-                      }
-                
-                 }
+              if ((*hit)->isValid())
+              {
+                const GeomDet *geomDet = theG->idToDet((*hit)->geographicalId());
+                const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(geomDet);
+                const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(geomDet);
+ //                const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(geomDet);
+          
+                const GlobalPoint &p = theG->idToDet((*hit)->geographicalId())->surface().toGlobal((*hit)->localPosition());
+                htrackrechitsxy->Fill(p.x(), p.y());  htrackrechitsz->Fill(p.z());
+          
+                if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==1)
+                {
+                    htrackrechitsDTxy->Fill(p.x(), p.y()); htrackrechitsDTz->Fill(p.z());
+                }
+                else if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==2)
+                {
+                    htrackrechitsCSCxy->Fill(p.x(), p.y()); htrackrechitsCSCz->Fill(p.z());
+                }
+                else if ((*hit)->geographicalId().det()==DetId::Muon && (*hit)->geographicalId().subdetId()==3)
+                {
+                    htrackrechitsRPCxy->Fill(p.x(), p.y()); htrackrechitsRPCz->Fill(p.z());
+                }
+                if (dtlayer || csclayer )
+                {
+                   if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::DT)
+                   {
+                       DTChamberId chdtid(geomDet->geographicalId().rawId());
+                       if (chdtid.wheel() == rpcid.ring() && chdtid.sector() == rpcid.sector() && chdtid.station() == rpcid.station())
+                       {
+                          SameSS = true;
+                       }
+                   }
+                   else if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::CSC)
+                   {
+                       CSCDetId chdtid(geomDet->geographicalId().rawId());
+                       if (chdtid.ring() == rpcid.ring() && chdtid.station() == rpcid.station())
+                       {
+                          SameSS = true;
+                            
+                       }
+                   }
+                   const GlobalPoint &p1 = geomDet->surface().toGlobal((*hit)->localPosition());
+                   if(SameSS==true && minDistence > sqrt((p1.x()-p.x())*(p1.x()-p.x())+(p1.y()-p.y())*(p1.y()-p.y())+(p1.z()-p.z())*(p1.z()-p.z())) )
+                   { 
+                       minDistence = sqrt((p1.x()-p.x())*(p1.x()-p.x())+(p1.y()-p.y())*(p1.y()-p.y())+(p1.z()-p.z())*(p1.z()-p.z()));
+                       dtcscid = (*hit)->geographicalId();
+                   }
+                }
+              } 
             }
-        }
-    }
+            if(SameSS == true) 
+            {
+              for(Trajectories::const_iterator trajectory = trajectories.begin(); trajectory != trajectories.end(); ++trajectory)
+              {
+                const GeomDet *whichdet2 = theG->idToDet(dtcscid);
+                const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(whichdet2);
+                const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(whichdet2);
+                GlobalPoint dcPoint;
 
+                if(dtlayer)
+                {
+                   const BoundPlane & DTCSCSurface = dtlayer->surface();
+                   dcPoint = DTCSCSurface.toGlobal(LocalPoint(0.,0.,0.));
+                }
+                if(csclayer)
+                {
+                   const BoundPlane & DTCSCSurface = csclayer->surface();
+                   dcPoint = DTCSCSurface.toGlobal(LocalPoint(0.,0.,0.));
+                }
+
+                TrajectoryMeasurement tMt = trajectory->closestMeasurement(dcPoint);
+                TrajectoryStateOnSurface upd2 = (tMt).updatedState();
+                if(!upd2.isValid()) continue;
+
+                TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, theG->idToDet((*r)->id())->surface());
+                if(ptss.isValid())
+                {
+                   LocalPoint xmin; LocalPoint xmax; float rsize; float stripl; float stripw;
+                   if(aroll->isBarrel())
+                   {
+                      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(aroll->topology()));
+                      xmin = top_->localPosition(0.);
+                      xmax = top_->localPosition((float)aroll->nstrips());
+                      rsize = fabs( xmax.x()-xmin.x());
+                      stripl = top_->stripLength();
+                      stripw = top_->pitch();
+                   }
+                   else
+                   {
+                      const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(aroll->topology()));
+                      //aggiungere endcap parameters
+                   }
+                   if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x())
+                   {
+                      float locx = ptss.localPosition().x();
+                      float locy = ptss.localPosition().y();
+                      int detid = (*r)->id();
+                      SetFolderMuonDir(detid);
+                      detrtMap_[detid]->Fill(locx, locy);
+               
+                      const GeomDet *whichdet1 = theG->idToDet(detid);
+                      const RPCRoll *aroll1 = dynamic_cast<const RPCRoll *>(whichdet1);
+                      const float stripPredicted =aroll1->strip(LocalPoint(locx,locy,0.));
+                      detsrtMap_[detid]->Fill(stripPredicted);
+                      int mstrip;
+                      float residual, sum, residualy, recX, recY;
+                      if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY, mstrip))
+                      {
+                         cout << "residual : "<< residual << endl;
+                         detrmMap_[detid]->Fill(locx, locy);
+                         detrrMap_[detid]->Fill(residual);
+               
+                        if(mstrip == stripPredicted)  detsrmMap_[detid]->Fill(mstrip);
+               
+                      }
+               
+                   }
+                }
+              }
+            }
+          }
+       }
+    }
 
 }
 
