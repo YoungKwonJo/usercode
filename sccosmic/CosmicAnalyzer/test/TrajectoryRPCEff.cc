@@ -285,7 +285,7 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
           int lsize= 200, bsize= lsize/4;
 
           RPCGeomServ servId(detid);
-          if (_debug) cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
+//          if (_debug) cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
 
 
           TFileDirectory subDir_RPC = fs->mkdir( "RPC" );
@@ -506,6 +506,7 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                    if(aroll->isBarrel())
                    {
                       const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(aroll->topology()));
+
                       xmin = top_->localPosition(0.);
                       xmax = top_->localPosition((float)aroll->nstrips());
                       rsize = fabs( xmax.x()-xmin.x());
@@ -515,10 +516,38 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                    else
                    {
                       const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(aroll->topology()));
+/*
+   virtual int channel(const LocalPoint&) const;
+ 
+   // Pitch in the middle of the DetUnit 
+   virtual float pitch() const; 
+ 
+   virtual float localPitch(const LocalPoint&) const;
+   
+   // angle between strip and symmetry axis 
+   virtual float stripAngle(float strip) const;
+ 
+   virtual int nstrips() const; 
+ 
+   /// det heigth (strip length in the middle)
+   virtual float stripLength() const {return theDetHeight;}
+   virtual float localStripLength(const LocalPoint& aLP) const;
+   
+   // radius of circle passing through the middle of the det
+   //    with center at the crossing of the two sides.
+   
+   float radius() const { return theDistToBeam;}
+*/
+
                       //aggiungere endcap parameters
                    }
-                   if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x())
+                   if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x() && ptss.localPosition().y()<stripl/2 && ptss.localPosition().y()>-stripl/2)
                    {
+                      RPCGeomServ servId((*r)->id());
+                      if (_debug) cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
+                      cout << " stripl : " << stripl <<endl;
+                      cout << " stripw : " << stripw <<endl;
+
                       float locx = ptss.localPosition().x();
                       float locy = ptss.localPosition().y();
                       int detid = (*r)->id();
