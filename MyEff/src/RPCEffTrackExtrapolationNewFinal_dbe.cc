@@ -269,10 +269,10 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 
 	LogTrace("RPCEffTrackExtrapolation") << "Just before TSOSINNER!"<<std::endl;  
 	
-	if(chi2 > 180) continue;
-	if(numValidHits < 26) continue;
+	if(chi2 > 160) continue;
+	if(numValidHits < 24) continue;
 
-	if(outPt < 10) continue;
+	//	if(outPt < 3) continue;
 
 	TrajectoryStateOnSurface tsosinner = track.innermostMeasurementState();
 	if(!tsosinner.isValid()) continue;
@@ -303,7 +303,6 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	  
 	  if(resultDetWithState.size() > 0){
 
-	    std::cout<<"Understanding --> Good events counter: "<<count_goodevent<<std::endl;
 	    const GeomDet* geomd = resultDetWithState[0].first;
 	    
 	    RPCDetId rpcid(geomd->geographicalId().rawId());
@@ -327,14 +326,15 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		  if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::DT){
 		      DTChamberId chdtid(geomDet->geographicalId().rawId());
 		      if (chdtid.wheel() == rpcid.ring() && 
-			  chdtid.sector() == rpcid.sector() && 
+			//  chdtid.sector() == rpcid.sector() && 
 			  chdtid.station() == rpcid.station()){
-			
-			GlobalPoint dtgp = geomDet->toGlobal((*recHit)->localPosition());
-			if (sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2)) < minDistance){
-			  minDistance = sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2));
-			  tMt = trajectory->closestMeasurement(geomDet->toGlobal((*recHit)->localPosition()));
-			}
+			if(chdtid.sector() == rpcid.sector() | ( chdtid.sector() == 13 &&  rpcid.sector() ==4 )){
+				GlobalPoint dtgp = geomDet->toGlobal((*recHit)->localPosition());
+				if (sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2)) < minDistance){
+			  	minDistance = sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2));
+			  	tMt = trajectory->closestMeasurement(geomDet->toGlobal((*recHit)->localPosition()));
+				}
+			}   
 		      }
 		  }
 		  else if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::CSC){
@@ -397,13 +397,13 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	    
 	    stripPredicted =rollasociated->strip(LocalPoint(tsosAtRPC.localPosition().x(),tsosAtRPC.localPosition().y(),0.));
 	    
+	    LocalPoint lp(tsosAtRPC.localPosition().x(),tsosAtRPC.localPosition().y(),0.);
+
 	    GlobalPoint PointRollGlobal = RPCSurface.toGlobal(tsosAtRPC.localPosition());
 	    gxextrap = PointRollGlobal.x();
 	    gyextrap = PointRollGlobal.y();
 	    gzextrap = PointRollGlobal.z();
 	    
-	    std::cout<<"Understanding ---> Extrapolated hits coord : "<<PointRollGlobal<<std::endl;
-
 	    //	    zangle = tsosAtRPC.localDirection().theta();
 	    LocalVector lv = tsosAtRPC.localDirection();
 	    zangle = atan(lv.z()/lv.x()); 
@@ -425,9 +425,6 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	    
 	    MeasurementContainer result = theMeasurementExtractor->measurements((*itdet), tsosAtRPC,*theService->propagator(thePropagatorName), *theEstimator, iEvent);
 	    
-	    std::cout<<"Understanding ---> Roll and Extrapolated point: "<<"Event num: "<<nevent<<"  "<<counttrack<<"  "<<nameRoll<<"  "<<PointRollGlobal<<std::endl;
-
-
 	    if(result.size() != 0) {
 	      TrajectoryMeasurement bestMeasurement = result[0];
 	      
@@ -439,7 +436,6 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	      if(rpcid1.rawId() == rpcid.rawId()){
 		count_goodevent++;
 		count_effevent++;
-		std::cout<<"Understanding --> Eff events counter: "<<count_effevent<<std::endl;
 
 		//--------------- RecHit and efficiency section ---------------------------------
 
@@ -459,8 +455,6 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		  res = (double)(lxextrap - rhitposX);
 		  int bx = (*recIt).BunchX();
 
-		  // 		  std::cout<<"Understanging ---> RecHit on the RPC Roll ---> "<<"Event num: "<<nevent<<"  "<<nameRoll<<"  "<<lxextrap<<"  "<<rhitposX<<"  "<<res<<std::endl;
-		  
 		  themyHistoClassDbe->fillPlotRoll(rawrpcid, nameRoll, bx, cls, res);
 		  themyHistoClassDbe->fillDetectorPlots2D(bx, cls, res, outPt);
 
@@ -486,29 +480,10 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		if(count > 0 && fabs(minres) <= 13.0) efficiency7 = 1;
 		if(count > 0 && fabs(minres) <= 100) efficiency8 = 1;
 
-
-		if(efficiency8 == 0) {
-		  std::cout<<"Understanging --->  !!!!!!!!!!!!!!"<<  "Event num: "<<nevent<<"  "<<"Roll name: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff8"<<std::endl;
-		}
-		if(efficiency7 == 0) {
-		  std::cout<<"Understanging --->  !!!!!!!!!!!!!!"<<  "Event num: "<<nevent<<"  "<<"Roll name: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff7"<<std::endl;
-		}
-		if(efficiency6 == 0) {
-		  std::cout<<"Understanging --->  !!!!!!!!!!!!!!"<<  "Event num: "<<nevent<<"  "<<"Roll name: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff6"<<std::endl;
-		}
-		if(efficiency5 == 0) {
-		  std::cout<<"Understanging --->  !!!!!!!!!!!!!!"<<  "Event num: "<<nevent<<"  "<<"Roll name: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff5"<<std::endl;
-		}
-		if(efficiency4 == 0) {
-		  std::cout<<"Understanging --->  !!!!!!!!!!!!!!"<<  "Event num: "<<nevent<<"  "<<"Roll name: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff4"<<std::endl;
-		}
-		if(efficiency3 == 0) {
-		  std::cout<<"Understanging --->  !!!!!!!!!!!!!!"<<  "Event num: "<<nevent<<"  "<<"Roll name: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff3"<<std::endl;
-		}
-
+		std::cout<<"Understanging STA --->  Name Roll: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff8"<<std::endl;
 
 		themyHistoClassDbe->fillPlotRollTrack(rawrpcid, nameRoll, stripPredicted,
-						      clsminres, minres, minbx, 
+						      clsminres, minres, minbx, lp.x(),lp.y(),
 						      efficiency1, efficiency2, efficiency3, efficiency4, 
 						      efficiency5, efficiency6, efficiency7, efficiency8);
 		
@@ -536,7 +511,7 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	      float minres = -999; 
 	      
 	      themyHistoClassDbe->fillPlotRollTrack(rawrpcid, nameRoll, stripPredicted,
-						    clsminres, minres, minbx, 
+						    clsminres, minres, minbx, lp.x(),lp.y(),
 						    efficiency1, efficiency2, efficiency3, efficiency4, 
 						    efficiency5, efficiency6, efficiency7, efficiency8);
 	    }
