@@ -637,7 +637,7 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                             detrrMap_[detid]->Fill(residual);
                             det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
 
-                            if(abs(stripPredicted-mstrip) < clusterSize && stripPredicted < firstClusterStrip+clusterSize+0.1 && stripPredicted > firstClusterStrip-0.1)
+                            if(abs(stripPredicted-mstrip) < clusterSize && firstClusterStrip-stripPredicted-0.99<0)
                             {
                                  detsrmMap_[detid]->Fill(stripPredicted);
                                  detmsClustX_[detid]->Fill(clusterSize, stripPredicted);
@@ -698,7 +698,7 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                             detrrMap_[detid]->Fill(residual);
                             det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
 
-                            if(abs(stripPredicted-mstrip) < clusterSize && stripPredicted < firstClusterStrip+clusterSize+0.1 && stripPredicted > firstClusterStrip-0.1 ) 
+                            if(abs(stripPredicted-mstrip) < clusterSize  && firstClusterStrip-stripPredicted-0.99<0 ) 
                             {
                                  detsrmMap_[detid]->Fill(stripPredicted);
                                  detmsClustX_[detid]->Fill(clusterSize, stripPredicted);
