@@ -149,7 +149,6 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
 
         bool _debug;
 
-        std::map<int, TH1F*> detRec_; 
         std::map<int, TH2F*> detrtMap_;
         std::map<int, TH2F*> detrmMap_;
         std::map<int, TH1F*> detrrMap_;
@@ -160,16 +159,21 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
 
         std::map<int, TH1F*> det1BunchX_;
         std::map<int, TH2F*> detmsBunchX_;
-        std::map<int, TH2F*> detBunchX_;
-
-        std::map<int, TH2F*> detClustX_;
         std::map<int, TH2F*> detmsClustX_;
-
         std::map<int, TH2F*> detResiClustX_;
 
-        std::map<int, TH1F*> detTangle_;
-        std::map<int, TH1F*> detAngle_;
-        std::map<int, TH1F*> detmsAngle_;
+        // reco hits
+        std::map<int, TH1F*> detRec_;
+        std::map<int, TH2F*> detRecLoc_;
+        std::map<int, TH2F*> detR2XLoc_;
+        std::map<int, TH2F*> detR2YLoc_;
+
+        std::map<int, TH1F*> detBunchX_;
+        std::map<int, TH1F*> detClustX_;
+
+        //std::map<int, TH1F*> detTangle_;
+        //std::map<int, TH1F*> detAngle_;
+        //std::map<int, TH1F*> detmsAngle_;
 
         TH1F *htrtjdiff; 
         TH2F *htrjtrachits;
@@ -336,9 +340,6 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
           TFileDirectory dirStation = dirRing.mkdir(Form("Station_%d", station));
           TFileDirectory dirSector = dirStation.mkdir( Form("Sector_%d",sector));
 
-           detRec_[detid] = dirSector.make<TH1F>(Form("RPCRec%s", servId.name().c_str()),
-                                        Form("%s rec hit strips", servId.name().c_str()),
-                                   spsize, 0.5, spsize+0.5);
 
            detrtMap_[detid] = dirSector.make<TH2F>(Form("RPCTtrt%s", servId.name().c_str()),
                                         Form("%s Trajectory hit", servId.name().c_str()),
@@ -359,6 +360,7 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
            detsrmMap_[detid] = dirSector.make<TH1F>(Form("RPCSrm%s", servId.name().c_str()),
                                         Form("%s strips matched trajectory", servId.name().c_str()),
                                    spsize, 0.5, spsize+0.5);
+
            det2srmMap_[detid] = dirSector.make<TH2F>(Form("RPC2Srm%s", servId.name().c_str()),
                                         Form("%s strips matched trajectory vs strip", servId.name().c_str()),
                                    51, -10.5, 10.5, spsize, 0.5, spsize+0.5);
@@ -370,13 +372,7 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
            detmsBunchX_[detid] =  dirSector.make<TH2F>(Form("RPCmsBunchXstrip%s", servId.name().c_str()),
                                         Form("%s BunchX vs matched strip", servId.name().c_str()),
                                    9, -4.5, 4.5, spsize, -0.5, spsize+0.5);
-           detBunchX_[detid] = dirSector.make<TH2F>(Form("RPCBunchXstrip%s", servId.name().c_str()),
-                                        Form("%s BunchX vs strip", servId.name().c_str()),
-                                   9, -4.5, 4.5, spsize, -0.5, spsize+0.5);
 
-           detClustX_[detid] = dirSector.make<TH2F>(Form("RPCClustX%s", servId.name().c_str()),
-                                        Form("%s ClusterSize vs firstClusterStrip", servId.name().c_str()),
-                                   30, 0, 30, spsize, -0.5, spsize+0.5);
            detmsClustX_[detid] = dirSector.make<TH2F>(Form("RPCmsClustX%s", servId.name().c_str()),
                                         Form("%s ClusterSize vs matchedStrip", servId.name().c_str()),
                                    30, 0, 30, spsize, -0.5, spsize+0.5);
@@ -384,6 +380,29 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
                                         Form("%s Residure and Cluster Size", servId.name().c_str()),
                                    400, -20, 20, 20, 0, 20);
 
+
+           detRec_[detid] = dirSector.make<TH1F>(Form("RPCRec%s", servId.name().c_str()),
+                                        Form("%s rec hit strips", servId.name().c_str()),
+                                   spsize, 0.5, spsize+0.5);
+           detRecLoc_[detid] = dirSector.make<TH2F>(Form("RPCRLoc%s", servId.name().c_str()),
+                                        Form("%s Reco hit localposition", servId.name().c_str()),
+                                   wsize/2, -wsize, wsize, hsize1/2, -hsize1, hsize1);
+
+           detBunchX_[detid] = dirSector.make<TH1F>(Form("RPCBunchX%s", servId.name().c_str()),
+                                        Form("%s BunchX of rechits", servId.name().c_str()),
+                                   9, -4.5, 4.5);
+           detClustX_[detid] = dirSector.make<TH1F>(Form("RPCClustX%s", servId.name().c_str()),
+                                        Form("%s ClusterSize of rechits", servId.name().c_str()),
+                                   30, 0, 30);
+           detR2XLoc_[detid] =  dirSector.make<TH2F>(Form("RPCR2XLoc%s", servId.name().c_str()),
+                                        Form("%s Reco hit strip : loc x", servId.name().c_str()),
+                                   spsize, 0.5, spsize+0.5, wsize/2, -wsize, wsize);
+
+           detR2YLoc_[detid] =  dirSector.make<TH2F>(Form("RPCR2YLoc%s", servId.name().c_str()),
+                                        Form("%s Reco hit strip : loc y", servId.name().c_str()),
+                                   spsize, 0.5, spsize+0.5, hsize1/2, -hsize1, hsize1);
+
+/*
      if(region != 0)
      {
            detTangle_[detid] = dirSector.make<TH1F>(Form("RPCTang%s", servId.name().c_str()),
@@ -396,6 +415,7 @@ bool TrajectoryRPCEff::SetFolderMuonDir(int detid)
                                         Form("%s matched angle strip", servId.name().c_str()),
                                    300, -3, -3);
       }
+*/
     }
      return true;
    } else return false;
@@ -470,9 +490,26 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet);
         if (aroll)
         {
-             SetFolderMuonDir(irpchit->geographicalId().rawId());
-             const float stripPredicted =aroll->strip(LocalPoint(irpchit->localPosition().x(),irpchit->localPosition().y(),0.));
-             detRec_[irpchit->geographicalId().rawId()]->Fill(stripPredicted);
+             int detid = aroll->geographicalId().rawId(); 
+             SetFolderMuonDir(detid);
+             detBunchX_[detid]->Fill(irpchit->BunchX());
+             for(int cs=0;cs< irpchit->clusterSize()+1;cs++)  detRec_[detid]->Fill(irpchit->firstClusterStrip()+cs);
+             detClustX_[detid]->Fill(irpchit->firstClusterStrip()); 
+             detRecLoc_[detid]->Fill(irpchit->localPosition().x(),irpchit->localPosition().y());
+             detR2XLoc_[detid]->Fill(irpchit->firstClusterStrip(),irpchit->localPosition().x());
+             detR2YLoc_[detid]->Fill(irpchit->firstClusterStrip(),irpchit->localPosition().y());
+///
+             if(aroll->isBarrel());
+             else     
+             {
+//                 const GlobalPoint &p = whichdet->surface().toGlobal(irpchit->localPosition());
+                 const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(aroll->topology()));
+                 float stripw = top_->localPitch(irpchit->localPosition());
+                 float strips = aroll->nstrips();
+                 cout << "stripsw : " << stripw*strips << " ---  : " << detid << endl;
+             }     
+//////////
+
         }
     }
 
@@ -600,6 +637,18 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 if(ptss.isValid())
                 {
                  //  LocalPoint xmin; LocalPoint xmax; float rsize; float stripl; float stripw;
+/*
+                   aroll;
+                   float strip(const LocalPoint& lp) const;
+                   float pitch() const;
+                   float localPitch(const LocalPoint& lp) const; 
+*/
+                   const Bounds &rollbound = theG->idToDet((*r)->id())->surface().bounds();
+                   float boundlength = rollbound.length();
+                   float boundwidth = rollbound.width();
+                   float boundthickness = rollbound.thickness();
+
+              //     cout << "boundlength : "<< boundlength <<" boundwidth: " << boundwidth << endl; 
                    if(aroll->isBarrel())
                    {
                       LocalPoint xmin; LocalPoint xmax; float rsize; float stripl; float stripw;
@@ -610,12 +659,14 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                       rsize = fabs( xmax.x()-xmin.x());
                       stripl = top_->stripLength();
                       stripw = top_->pitch();
-                      if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x() && ptss.localPosition().y()<stripl/2 && ptss.localPosition().y()>-stripl/2)
+                      cout << "boundlength : "<< boundlength <<" boundwidth: " << boundwidth << endl;
+
+                      if(ptss.localPosition().x()< boundwidth/2 && ptss.localPosition().x()> -boundwidth/2 && ptss.localPosition().y()<boundlength/2 && ptss.localPosition().y()>-boundlength/2)
                       {
                          RPCGeomServ servId((*r)->id());
                          if (_debug) cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
                          cout << " stripl : " << stripl <<endl;
-                         cout << " stripw : " << stripw <<endl;
+                         cout << " rsize : " << rsize <<endl;
                     
                          float locx = ptss.localPosition().x();
                          float locy = ptss.localPosition().y();
@@ -633,19 +684,21 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                          if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY, mstrip, BunchX, clusterSize, firstClusterStrip))
                          {
                             cout << "residual : "<< residual << endl;
-                            detrmMap_[detid]->Fill(locx, locy);
-                            detrrMap_[detid]->Fill(residual);
-                            det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
-
-                            if(abs(stripPredicted-mstrip) < clusterSize && firstClusterStrip-stripPredicted-0.99<0)
+                            if(residual < 10.0)
                             {
+                                 detrmMap_[detid]->Fill(locx, locy);
+                                 detrrMap_[detid]->Fill(residual);
+                                 det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
+
+                          //  if(abs(stripPredicted-mstrip) < clusterSize && firstClusterStrip-stripPredicted-0.99<0)
+                          //  {
                                  detsrmMap_[detid]->Fill(stripPredicted);
                                  detmsClustX_[detid]->Fill(clusterSize, stripPredicted);
                                  detmsBunchX_[detid]->Fill(BunchX,stripPredicted);
                                  det1BunchX_[detid]->Fill(BunchX);
                             }
-                            detBunchX_[detid]->Fill(BunchX, stripPredicted);
-                            detClustX_[detid]->Fill(clusterSize, firstClusterStrip);
+                            //detBunchX_[detid]->Fill(BunchX, stripPredicted);
+                            //detClustX_[detid]->Fill(clusterSize, firstClusterStrip);
                             detResiClustX_[detid]->Fill(residual, clusterSize);
                          }
                     
@@ -661,18 +714,32 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                       stripl = top_->stripLength();
                       rsize = fabs( xmax.x()-xmin.x());
                      // stripl = top_->stripLength();
+                     // stripw = top_->localPitch(ptss.localPosition());
                       stripw = top_->pitch();
                       float radius = top_->radius();
+/////////////////
+//                 float aastripw = top_->localPitch(ptss.localPosition());
+//                 float aastrips = aroll->nstrips();
+//                 cout << "aa stripsw : " << aastripw*aastrips << " ---  : " << aroll->geographicalId().rawId() 
+//                      << ", (" << xmax.x() <<",  "<<xmin.x() <<"),("<<xmax.y()<<", "<<xmin.y() << endl;
 
+//////////////////
                     //  float xmax = radius*TMath::Cos(top_->stripAngle((float)aroll->nstrips())/2);
                     //  float ymax = radius*TMath::Sin(top_->stripAngle((float)aroll->nstrips())/2);
-                      if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x() && ptss.localPosition().y()<stripl/2 && ptss.localPosition().y()>-stripl/2)
+                      cout << "boundlength : "<< boundlength <<" boundwidth: " << boundwidth << endl;
+                      double nminx = TMath::Pi()*(18*boundwidth/ TMath::Pi() - boundlength)/18;
+                      double ylimit = ((boundlength)/(boundwidth/2 - nminx/2))*fabs(ptss.localPosition().x())
+					+ boundlength/2 - ((boundlength)/(boundwidth/2 - nminx/2))*(boundwidth/2);
+                      if(ylimit < -boundlength/2 ) ylimit = -boundlength/2;
+                      cout << "nminx : "  << nminx << " ylimit : " << ylimit << " loc x : " << ptss.localPosition().x()<< endl;
+                      if(ptss.localPosition().x()< boundwidth/2 && ptss.localPosition().x()> -boundwidth/2 && ptss.localPosition().y()<boundlength/2 && ptss.localPosition().y()> ylimit)
+//                      if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x() && ptss.localPosition().y()<stripl/2 && ptss.localPosition().y()>-stripl/2)
 //                      if(ptss.localPosition().x()<xmax.x() && ptss.localPosition().x()> xmin.x() && ptss.localPosition().y()<ymax && ptss.localPosition().y()>-ymax)
                       {
                          RPCGeomServ servId((*r)->id());
                          if (_debug) cout << "RPCGeomServ : " << servId.name() << " :: " << endl;
                          cout << " stripl : " << stripl <<endl;
-                         cout << " stripw : " << stripw <<endl;
+                         cout << " rsize : " << rsize <<endl;
    
                          float locx = ptss.localPosition().x();
                          float locy = ptss.localPosition().y();
@@ -684,34 +751,37 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                          const RPCRoll *aroll1 = dynamic_cast<const RPCRoll *>(whichdet1);
                          const float stripPredicted =aroll1->strip(LocalPoint(locx,locy,0.));
                          detsrtMap_[detid]->Fill(stripPredicted);
-                         const float pangle = top_->stripAngle(stripPredicted);  
+                       //  const float pangle = top_->stripAngle(stripPredicted);  
 
-                         detTangle_[detid]->Fill(pangle);
-                         cout << "tra Angle: " << pangle << endl;
+                       //  detTangle_[detid]->Fill(pangle);
+                       //  cout << "tra Angle: " << pangle << endl;
                          float mstrip;
                          float residual, sum, residualy, recX, recY;
                          int BunchX,  clusterSize, firstClusterStrip;
                          if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY, mstrip, BunchX, clusterSize, firstClusterStrip))
                          {
                             cout << "residual : "<< residual << endl;
-                            detrmMap_[detid]->Fill(locx, locy);
-                            detrrMap_[detid]->Fill(residual);
-                            det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
 
-                            if(abs(stripPredicted-mstrip) < clusterSize  && firstClusterStrip-stripPredicted-0.99<0 ) 
-                            {
+			//    if(residual < 10.0)
+                        //    {
+                                 detrmMap_[detid]->Fill(locx, locy);
+                                 detrrMap_[detid]->Fill(residual);
+                                 det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
+
+                           // if(abs(stripPredicted-mstrip) < clusterSize  && firstClusterStrip-stripPredicted-0.99<0 ) 
+                           // {
                                  detsrmMap_[detid]->Fill(stripPredicted);
                                  detmsClustX_[detid]->Fill(clusterSize, stripPredicted);
                                  detmsBunchX_[detid]->Fill(BunchX,stripPredicted);
                                  det1BunchX_[detid]->Fill(BunchX);
-                                 detmsAngle_[detid]->Fill(pangle);
-                                 cout << "matched tra Angle: " << pangle << endl;
+                                // detmsAngle_[detid]->Fill(pangle);
+                                 //cout << "matched tra Angle: " << pangle << endl;
 
-                            }
-                            detBunchX_[detid]->Fill(BunchX, stripPredicted);
-                            detClustX_[detid]->Fill(clusterSize, firstClusterStrip);
+                           // }
+                           // detBunchX_[detid]->Fill(BunchX, stripPredicted);
+                           // detClustX_[detid]->Fill(clusterSize, firstClusterStrip);
                             detResiClustX_[detid]->Fill(residual, clusterSize);
-                            detAngle_[detid]->Fill(pangle);
+                           // detAngle_[detid]->Fill(pangle);
 
                          }
    
