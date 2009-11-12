@@ -4,7 +4,7 @@ project CMSSW
 cmsrel CMSSW CMSSW_3_1_1
 cd CMSSW_3_1_1/src/
 eval `scramv1 runtime -sh`
-cvs co -r V00-00-03 UserCode/youngjo/copyFromCastorToWeb
+cvs co -r V00-00-04 UserCode/youngjo/copyFromCastorToWeb
 cd UserCode/youngjo/copyFromCastorToWeb
 
 ./checkgif.sh
