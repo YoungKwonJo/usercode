@@ -11,7 +11,7 @@ process = cms.Process("Demo")
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "GR09_31X_V3P::All"#"CRUZET4_V4P::All"
+process.GlobalTag.globaltag = "GR09_P_V4::All"#"CRUZET4_V4P::All"
 #CRAFT_V4P::All , CRUZET4_V4P::All
 #process.GlobalTag.globaltag = 'COSMMC_22X_TK::All'
 #process.GlobalTag.globaltag = "CRZT210_V3P::All"
@@ -20,8 +20,8 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.load("Configuration.StandardSequences.MagneticField_0T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
