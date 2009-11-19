@@ -14,7 +14,7 @@
 //
 // Original Author:  Su Yong Choi
 //         Created:  Wed Aug 5 19:02:58 2009 UTC (38 hours, 53 minutes ago) by youngjo 
-// $Id: TrajectoryRPCEff.cc,v 1.1 2009/08/05 19:02:58 youngjo Exp $
+// $Id: TrajectoryRPCEff.cc,v 1.11 2009/11/04 14:37:30 youngjo Exp $
 //
 //
 
@@ -94,6 +94,7 @@
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForCosmicMuons.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
 #include <TFile.h>
 #include <TMath.h>
@@ -226,10 +227,12 @@ theRPCRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("RPCRecSegmen
     theMuonService_ = new MuonServiceProxy(serviceParameters);
 
     ParameterSet trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");
-    theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
 
     edm::Service<TFileService> fs;
     theInputLabel = iConfig.getParameter<InputTag>("InputLabel");
+
+    if(theInputLabel.label()=="cosmicMuons") theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
+    else  theTrackTransformer = new TrackTransformer(trackTransformerParam);
 
     htrtjdiff = fs->make<TH1F>("htrtjdiff", "diff counts  of track and trajectory", 50, 0.0, 50.0);
     htrjtrachits = fs->make<TH2F>("htrjtrachits", "hits  of trajectory and track ", 80, 0.0, 80.0, 80, 0.0, 80.0);
