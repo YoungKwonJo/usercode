@@ -52,13 +52,7 @@
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/PatternTools>
-<use name="TrackingTools/MeasurementDet">
-<use name=TrackingTools/TrackRefitter>
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/TransientTrack>
-<use name=TrackingTools/TransientTrackingRecHit>
-<use name=TrackingTools/TrackAssociator>
-
+ <use name="TrackingTools/MeasurementDet">
 
 <use name="DataFormats/MuonReco">
 <use name="DataFormats/TrackReco">
