@@ -14,7 +14,7 @@
 //
 // Original Author:  Su Yong Choi
 //         Created:  Wed Aug 5 19:02:58 2009 UTC (38 hours, 53 minutes ago) by youngjo 
-// $Id: TrajectoryRPCEff.cc,v 1.11 2009/11/04 14:37:30 youngjo Exp $
+// $Id: TrajectoryRPCEff.cc,v 1.12 2009/11/19 12:09:10 youngjo Exp $
 //
 //
 
@@ -148,6 +148,9 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
 /// the name of the RPC rec hits collection
         edm::InputTag theRPCRecSegmentLabel;
 
+        edm::InputTag cscSegments;
+        edm::InputTag dt4DSegments;
+
         bool _debug;
 
         std::map<int, TH2F*> detrtMap_;
@@ -193,6 +196,24 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
         TH1F *htrackouterz;
         TH2F *htrackq;
 
+        TH2F *htrackinnerxyp1;
+        TH2F *htrackouterxyp1;
+
+        TH2F *htrackinnerxyp2;
+        TH2F *htrackouterxyp2;
+         
+        TH2F *htrackinnerxyp3;
+        TH2F *htrackouterxyp3;
+
+        TH2F *htrackinnerxym1;
+        TH2F *htrackouterxym1;
+
+        TH2F *htrackinnerxym2;
+        TH2F *htrackouterxym2;
+
+        TH2F *htrackinnerxym3;
+        TH2F *htrackouterxym3;
+
         TH2F *htrackrechitsxy;
         TH1F *htrackrechitsz;
 
@@ -217,7 +238,9 @@ class TrajectoryRPCEff : public edm::EDAnalyzer
 TrajectoryRPCEff::TrajectoryRPCEff(const edm::ParameterSet& iConfig)
 :theDTRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("DTRecSegmentLabel")),
 theCSCRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("CSCRecSegmentLabel")),
-theRPCRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("RPCRecSegmentLabel"))
+theRPCRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("RPCRecSegmentLabel")),
+cscSegments(iConfig.getUntrackedParameter<edm::InputTag>("cscSegments")),
+dt4DSegments(iConfig.getUntrackedParameter<edm::InputTag>("dt4DSegments"))
 {
 //now do what ever initialization is needed
 
@@ -245,6 +268,25 @@ theRPCRecSegmentLabel(iConfig.getUntrackedParameter<edm::InputTag>("RPCRecSegmen
     htrackouterxy = fs->make<TH2F>("htrackouterxy", "y vs x of outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
     htrackinnerz = fs->make<TH1F>("htrackinnerz", "z of inner hit ", 100, -1500.0, 1500.0);
     htrackouterz = fs->make<TH1F>("htrackouterz", "z of outer hit ", 100, -1500.0, 1500.0);
+
+    htrackinnerxyp1 = fs->make<TH2F>("htrackinnerxyp1", "y vs x of +1 inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxyp1 = fs->make<TH2F>("htrackouterxyp1", "y vs x of +1 outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+
+    htrackinnerxyp2 = fs->make<TH2F>("htrackinnerxyp2", "y vs x of +2 inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxyp2 = fs->make<TH2F>("htrackouterxyp2", "y vs x of +2 outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+
+    htrackinnerxyp3 = fs->make<TH2F>("htrackinnerxyp3", "y vs x of +3 inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxyp3 = fs->make<TH2F>("htrackouterxyp3", "y vs x of +3 outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+
+    htrackinnerxym1 = fs->make<TH2F>("htrackinnerxym1", "y vs x of -1 inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxym1 = fs->make<TH2F>("htrackouterxym1", "y vs x of -1 outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+
+    htrackinnerxym2 = fs->make<TH2F>("htrackinnerxym2", "y vs x of -2 inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxym2 = fs->make<TH2F>("htrackouterxym2", "y vs x of -2 outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+
+    htrackinnerxym3 = fs->make<TH2F>("htrackinnerxym3", "y vs x of -3 inner hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+    htrackouterxym3 = fs->make<TH2F>("htrackouterxym3", "y vs x of -3 outer hit ", 100, -1000.0, 1000.0, 100, -1000.0, 1000.0);
+
     hnvalidhits = fs->make<TH2F>("hnvalidhits", "Number of hits on track", 50, -3.1415, 3.1415, 50, 0.0, 50.0);
     hchi2prob = fs->make<TH2F>("hchi2prob", "#chi^2 probability of tracks", 50, -3.1415, 3.1415, 50, 0.0, 1.0);
     hchi2ndof = fs->make<TH2F>("hchi2ndof", "Normalized #chi^2 of tracks", 50, -3.1415, 3.1415, 50, 0.0, 10.0);
@@ -479,7 +521,12 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByLabel(theDTRecSegmentLabel, allDThits);
     iEvent.getByLabel(theCSCRecSegmentLabel, allCSChits);
 
-    
+    edm::Handle<DTRecSegment4DCollection> all4DSegments;
+    iEvent.getByLabel(dt4DSegments, all4DSegments);
+
+    edm::Handle<CSCSegmentCollection> allCSCSegments;
+    iEvent.getByLabel(cscSegments, allCSCSegments);
+
     //muonMeasurements.setEvent(iEvent);
     MuonTransientTrackingRecHit::MuonRecHitContainer allHits;
 
@@ -526,6 +573,21 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        htrackouterxy->Fill(track->outerPosition().X(), track->outerPosition().Y()); //  position of the outermost hit
        htrackinnerz->Fill(track->innerPosition().Z()); // position of the innermost hit
        htrackouterz->Fill(track->outerPosition().Z()); // position of the outermost hit
+
+       if(track->innerPosition().Z()<750 && track->innerPosition().Z()>670) htrackinnerxyp1->Fill(track->innerPosition().X(), track->innerPosition().Y());
+       if(track->innerPosition().Z()>-750  && track->innerPosition().Z()<-670) htrackinnerxym1->Fill(track->innerPosition().X(), track->innerPosition().Y());
+       if(track->outerPosition().Z()<750 && track->outerPosition().Z()>670) htrackouterxyp1->Fill(track->outerPosition().X(), track->outerPosition().Y());
+       if(track->outerPosition().Z()>-750 && track->outerPosition().Z()<-670) htrackouterxym1->Fill(track->outerPosition().X(), track->outerPosition().Y());
+
+       if(track->innerPosition().Z()<900 && track->outerPosition().Z()>750) htrackinnerxyp2->Fill(track->innerPosition().X(), track->innerPosition().Y());
+       if(track->innerPosition().Z()>-900 && track->outerPosition().Z()<-750) htrackinnerxym2->Fill(track->innerPosition().X(), track->innerPosition().Y());
+       if(track->outerPosition().Z()<900 && track->outerPosition().Z()>750) htrackouterxyp2->Fill(track->outerPosition().X(), track->outerPosition().Y());
+       if(track->outerPosition().Z()>-900 && track->outerPosition().Z()<-750) htrackouterxym2->Fill(track->outerPosition().X(), track->outerPosition().Y());
+
+       if(track->innerPosition().Z()>900) htrackinnerxyp3->Fill(track->innerPosition().X(), track->innerPosition().Y());
+       if(track->innerPosition().Z()<-900) htrackinnerxym3->Fill(track->innerPosition().X(), track->innerPosition().Y());
+       if(track->outerPosition().Z()>900) htrackouterxyp3->Fill(track->outerPosition().X(), track->outerPosition().Y());
+       if(track->outerPosition().Z()<-900) htrackouterxym3->Fill(track->outerPosition().X(), track->outerPosition().Y());
 
        const reco::HitPattern& p = track->hitPattern();
        hnvalidhits->Fill(track->innerPosition().phi(), p.numberOfHits()); // azimuthal angle of Innermost hit, number Of Hits
@@ -590,17 +652,46 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //                       if (chdtid.wheel() == rpcid.ring() && chdtid.sector() == rpcid.sector() && chdtid.station() == rpcid.station())
                        if (chdtid.wheel() == rpcid.ring() && chdtid.station() == rpcid.station())
                        {
-                         if(chdtid.sector() == rpcid.sector())  SameSS = true;
-                         if( chdtid.sector() == 13 &&  rpcid.sector() ==4 ) SameSS = true; 
+                         DTRecSegment4DCollection::const_iterator segment; 
+                         for (segment = all4DSegments->begin();segment!=all4DSegments->end(); ++segment)
+                         {
+                            DTChamberId DTId = segment->chamberId();
+                            int dtSector = DTId.sector(); 
+                            if(dtSector==13) dtSector=4;
+                            if(dtSector==14)  dtSector=10;
+                            if(DTId.wheel()==rpcid.ring() && DTId.station()==rpcid.station() && dtSector==rpcid.sector())
+                            {
+                               if(chdtid.sector() == rpcid.sector())  SameSS = true;
+                               if( chdtid.sector() == 13 &&  rpcid.sector() ==4 ) SameSS = true; 
+                               if( chdtid.sector() == 14 &&  rpcid.sector() ==10 ) SameSS = true;
+                            }
+                         }   
                        }
+                         
                    }
                    else if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::CSC)
                    {
                        CSCDetId chdtid(geomDet->geographicalId().rawId());
-                       if (chdtid.ring() == rpcid.ring() && chdtid.station() == rpcid.station())
+                       int cscring = chdtid.ring();
+                       if(cscring==4)cscring =1; // if(cscring==3 &&  !chdtid.station()==1) cscring=2
+                       int cscregion = 1; if(chdtid.endcap()==2) cscregion= -1;
+                       int ReMarkRpcRing=rpcid.ring(); if(rpcid.ring()==3 &&  rpcid.station()!=1) ReMarkRpcRing=2;
+
+                       if (cscring == ReMarkRpcRing && chdtid.station() == rpcid.station() && cscregion == rpcid.region())
                        {
-                          SameSS = true;
-                            
+                         CSCSegmentCollection::const_iterator segment;
+                         for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment)
+                         {  
+                            CSCDetId CSCId = segment->cscDetId();
+                            RPCGeomServ rpcsrv(rpcid);
+                            int cscSRegion = 1; if(CSCId.endcap()==2) cscSRegion= -1;
+                            int cscSRing = CSCId.ring();
+                            if(cscSRing==4)cscSRing =1;
+                            if(cscSRegion==rpcid.region() && CSCId.station()==rpcid.station() && cscSRing == ReMarkRpcRing && CSCId.chamber()==rpcsrv.segment())
+                            {    
+                               SameSS = true;
+                            }   
+                         }   
                        }
                    }
                    const GlobalPoint &p1 = geomDet->surface().toGlobal((*hit)->localPosition());
@@ -687,7 +778,7 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                          if (findmatch(allRPChits, detid, locx, locy, residual, sum, residualy, recX, recY, mstrip, BunchX, clusterSize, firstClusterStrip))
                          {
                             cout << "residual : "<< residual << endl;
-                            if(residual < 10.0)
+                            if(fabs(residual) < 10.0)
                             {
                                  detrmMap_[detid]->Fill(locx, locy);
                                  detrrMap_[detid]->Fill(residual);
@@ -765,8 +856,8 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                          {
                             cout << "residual : "<< residual << endl;
 
-			//    if(residual < 10.0)
-                        //    {
+			                if(fabs(residual) < 10.0)
+                            {
                                  detrmMap_[detid]->Fill(locx, locy);
                                  detrrMap_[detid]->Fill(residual);
                                  det2srmMap_[detid]->Fill(stripPredicted-mstrip, stripPredicted);
@@ -788,7 +879,7 @@ void TrajectoryRPCEff::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
                          }
    
-                      }
+                         }}
 
 /*
    virtual int channel(const LocalPoint&) const;
