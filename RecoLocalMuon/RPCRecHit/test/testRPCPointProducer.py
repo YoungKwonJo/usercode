@@ -11,7 +11,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR09_P_V8::All"
+process.GlobalTag.globaltag = "MC_3XY_V15::All"
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -24,7 +24,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       "/store/data/BeamCommissioning09/PhysicsMuonBkg/RECO/v2/000/124/056/FC1CCF05-B3E7-DE11-B062-001617E30CC8.root"
+        '/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-RECO/STARTUP3X_V14-v1/0009/DE021237-8FED-DE11-A452-0030486792AC.root'
     )
 )
 
@@ -65,7 +65,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_cscSegments_*_*',
         'keep *_rpcPointProducer_*_*',
         'keep *_rpcRecHits_*_*'),
-  fileName = cms.untracked.string('/tmp/youngjo/output.root')
+  fileName = cms.untracked.string('output.root')
 )
   
 process.p = cms.Path(process.rpcPointProducer)
