@@ -12,7 +12,7 @@
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackingTools/TrackAssociator>
-<use name=TrackingTools/TrackRefitter>
+<use name=TrackingTolls/TrackRefitter>
 <use name=clhep>
 <use name=ROOT>
 <Flags CXXFLAGS="-O0 -g -DDEBUG">

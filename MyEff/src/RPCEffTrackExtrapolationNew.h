@@ -50,7 +50,6 @@
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerForCosmicMuons.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
-#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
@@ -89,26 +88,7 @@ class RPCEffTrackExtrapolationNew : public edm::EDAnalyzer {
    private:
 
       int count_goodevent;
-      int count_goodeventBarrel;
-      int count_goodeventEndcap;
-      int count_goodeventDiskm1;
-      int count_goodeventDiskm2;
-      int count_goodeventDiskm3;
-      int count_goodeventDisk1;
-      int count_goodeventDisk2;
-      int count_goodeventDisk3;
-
       int count_effevent;
-      int count_effeventBarrel;
-      int count_effeventEndcap;
-      int count_effeventDiskm1;
-      int count_effeventDiskm2;
-      int count_effeventDiskm3;
-      int count_effeventDisk1;
-      int count_effeventDisk2;
-      int count_effeventDisk3;
-
-
 
       virtual void beginJob(const edm::EventSetup&) ;
       //virtual void beginRun( edm::Run&, const edm::EventSetup&);

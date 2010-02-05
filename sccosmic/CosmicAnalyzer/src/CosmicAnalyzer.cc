@@ -15,7 +15,7 @@
 //
 // Original Author:  Su Yong Choi
 //         Created:  Wed Jul  9 17:03:35 CEST 2008
-// $Id: CosmicAnalyzer.cc,v 1.9 2009/07/17 11:31:14 youngjo Exp $
+// $Id$
 //
 //
 
@@ -59,10 +59,10 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "ForSccosmic/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "ForSccosmic/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "ForSccosmic/TrackAssociator/interface/TAMuonChamberMatch.h"
-#include "ForSccosmic/TrackAssociator/interface/TrackDetMatchInfoCollection.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+#include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfoCollection.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
@@ -1133,12 +1133,12 @@ CosmicAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(whichdet);
             const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(whichdet);
             const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(whichdet);
-     //     if(fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<100)
+          if(fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<100)
           {
             if (aroll)
             {
               RPCDetId segId(rawid);
-              if ((fabs(detectorscrossed[rawid].locx)<100&& fabs(detectorscrossed[rawid].locy)<50) | fabs(segId.region())==1 )
+              if (fabs(detectorscrossed[rawid].locy)<50 | fabs(segId.region())==1 )
               {
 //                 RPCDetId segId(rawid);
                  RPCGeomServ servId(rawid);
@@ -1525,7 +1525,7 @@ cout << rpcsurface->position().z() << endl;
                 int det = detectorscrossed[rawid].subdet;
                 
                 int zbin;
-//              if(fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<100)
+              if(fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<100)
               {
                 if (det==1) //DT
                 {
@@ -1556,7 +1556,7 @@ cout << rpcsurface->position().z() << endl;
                 else if (det==3) // RPC
                 {
                    RPCDetId segId(rawid);
-                   if (( fabs(detectorscrossed[rawid].locx)<100 && fabs(detectorscrossed[rawid].locy)<50) | fabs(segId.region())==1 )
+                   if (fabs(detectorscrossed[rawid].locy)<50 | fabs(segId.region())==1 )
                    {
                 //        RPCDetId segId(rawid);
                         int region = segId.region();

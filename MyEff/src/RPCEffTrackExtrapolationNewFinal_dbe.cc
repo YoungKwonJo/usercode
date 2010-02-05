@@ -121,30 +121,10 @@ RPCEffTrackExtrapolationNew::RPCEffTrackExtrapolationNew(const edm::ParameterSet
   themyHistoClassDbe = new MyHistoClassDbeNew();
     
   ParameterSet trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");
-  if(TjInput.c_str()=="cosmicMuons") theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
-  else  theTrackTransformer = new TrackTransformer(trackTransformerParam);
-
- // theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
+  theTrackTransformer = new TrackTransformerForCosmicMuons(trackTransformerParam);
 
   count_goodevent = 0;
-  count_goodeventBarrel = 0;
-  count_goodeventEndcap = 0;
-  count_goodeventDiskm1 = 0;
-  count_goodeventDiskm2 = 0;
-  count_goodeventDiskm3 = 0;
-  count_goodeventDisk1 = 0;
-  count_goodeventDisk2 = 0;
-  count_goodeventDisk3 = 0;
-
   count_effevent = 0;
-  count_effeventBarrel = 0;
-  count_effeventEndcap = 0;
-  count_effeventDiskm1 = 0;
-  count_effeventDiskm2 = 0;
-  count_effeventDiskm3 = 0;
-  count_effeventDisk1 = 0;
-  count_effeventDisk2 = 0;
-  count_effeventDisk3 = 0;
 
 }
 
@@ -291,7 +271,8 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	
 	if(chi2 > 160) continue;
 	if(numValidHits < 24) continue;
-	if(outPt < 5) continue;
+
+	//	if(outPt < 3) continue;
 
 	TrajectoryStateOnSurface tsosinner = track.innermostMeasurementState();
 	if(!tsosinner.isValid()) continue;
@@ -345,14 +326,15 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		  if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::DT){
 		      DTChamberId chdtid(geomDet->geographicalId().rawId());
 		      if (chdtid.wheel() == rpcid.ring() && 
-			  chdtid.station() == rpcid.station() &&
-			  (chdtid.sector() == rpcid.sector() || (chdtid.sector() == 13 && rpcid.sector() == 4))){
-			
-			GlobalPoint dtgp = geomDet->toGlobal((*recHit)->localPosition());
-			if (sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2)) < minDistance){
-			  minDistance = sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2));
-			  tMt = trajectory->closestMeasurement(geomDet->toGlobal((*recHit)->localPosition()));
-			}
+			//  chdtid.sector() == rpcid.sector() && 
+			  chdtid.station() == rpcid.station()){
+			if(chdtid.sector() == rpcid.sector() | ( chdtid.sector() == 13 &&  rpcid.sector() ==4 )){
+				GlobalPoint dtgp = geomDet->toGlobal((*recHit)->localPosition());
+				if (sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2)) < minDistance){
+			  	minDistance = sqrt(pow(dtgp.x()-rpRPC.x(),2)+pow(dtgp.y()-rpRPC.y(),2)+pow(dtgp.z()-rpRPC.z(),2));
+			  	tMt = trajectory->closestMeasurement(geomDet->toGlobal((*recHit)->localPosition()));
+				}
+			}   
 		      }
 		  }
 		  else if(DetId(geomDet->geographicalId().rawId()).det() == DetId::Muon && DetId(geomDet->geographicalId().rawId()).subdetId() == MuonSubdetId::CSC){
@@ -452,27 +434,8 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	      }
 
 	      if(rpcid1.rawId() == rpcid.rawId()){
-
-                count_goodevent++;
-                if(rpcid.region() == 0) count_goodeventBarrel++;
-                if(rpcid.region() != 0) count_goodeventEndcap++;
-                if(rpcid.region() == -1 && rpcid.station() == 1) count_goodeventDiskm1++;
-                if(rpcid.region() == -1 && rpcid.station() == 2) count_goodeventDiskm2++;
-                if(rpcid.region() == -1 && rpcid.station() == 3) count_goodeventDiskm3++;
-                if(rpcid.region() == 1 && rpcid.station() == 1) count_goodeventDisk1++;
-                if(rpcid.region() == 1 && rpcid.station() == 2) count_goodeventDisk2++;
-                if(rpcid.region() == 1 && rpcid.station() == 3) count_goodeventDisk3++;
-
-                count_effevent++;
-                if(rpcid.region() == 0) count_effeventBarrel++;
-                if(rpcid.region() != 0) count_effeventEndcap++;
-                if(rpcid.region() == -1 && rpcid.station() == 1) count_effeventDiskm1++;
-                if(rpcid.region() == -1 && rpcid.station() == 2) count_effeventDiskm2++;
-                if(rpcid.region() == -1 && rpcid.station() == 3) count_effeventDiskm3++;
-                if(rpcid.region() == 1 && rpcid.station() == 1) count_effeventDisk1++;
-                if(rpcid.region() == 1 && rpcid.station() == 2) count_effeventDisk2++;
-                if(rpcid.region() == 1 && rpcid.station() == 3) count_effeventDisk3++;
-
+		count_goodevent++;
+		count_effevent++;
 
 		//--------------- RecHit and efficiency section ---------------------------------
 
@@ -481,15 +444,10 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		int clsminres;
 		RPCRecHitCollection::const_iterator recIt;
 		RPCRecHitCollection::range rpcRecHitRange = rpcHits->get(rpcid);
-
-		LocalPoint minresPoint(0.,0.,0.);
-
 		for (recIt = rpcRecHitRange.first; recIt!=rpcRecHitRange.second; ++recIt){
 		  
 		  LocalPoint rhitlocal = (*recIt).localPosition();
-
-
-
+		  
 		  double rhitposX = rhitlocal.x();  
 		  int cls = (*recIt).clusterSize();
 		  LocalError RecError = (*recIt).localPositionError();
@@ -509,7 +467,6 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		    minres = res;
 		    clsminres = cls;
 		    minbx = bx;
-		    minresPoint = (*recIt).localPosition();
 		  }
 		  count++;
 		}
@@ -523,14 +480,14 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 		if(count > 0 && fabs(minres) <= 13.0) efficiency7 = 1;
 		if(count > 0 && fabs(minres) <= 100) efficiency8 = 1;
 
-                std::cout<<"Understanging STA --->  Region: "<<rpcid.region()<< "  "<<"Name Roll: "<<nameRoll<<"  "<<"MinRes: "<<minres<<std::endl;
+		std::cout<<"Understanging STA --->  Name Roll: "<<nameRoll<<"  "<<"MinRes: "<<fabs(minres)<< "  "<<"Eff8"<<std::endl;
 
 		themyHistoClassDbe->fillPlotRollTrack(rawrpcid, nameRoll, stripPredicted,
 						      clsminres, minres, minbx, lp.x(),lp.y(),
 						      efficiency1, efficiency2, efficiency3, efficiency4, 
 						      efficiency5, efficiency6, efficiency7, efficiency8);
 		
-		themyHistoClassDbe->fillGeneralPlots2D(rawrpcid,mfieldX, mfieldY, mfieldZ,outP, outPt, zangle,stripw,
+		themyHistoClassDbe->fillGeneralPlots2D(mfieldX, mfieldY, mfieldZ,outP, outPt, zangle,
 						       outPhi, outEta, outTheta,count, clsminres, minres, minbx);
 		
 	      }
@@ -540,17 +497,7 @@ void RPCEffTrackExtrapolationNew::analyze(const edm::Event& iEvent, const edm::E
 	    }
 	    else {
 	      std::cout<<"Understanding --> The measurement container is empty, therefore the Roll is inefficient!"<<"  "<<"Event num: "<<nevent<<"  "<<nameRoll<<std::endl;
-	      
 	      count_goodevent++;
-              if(rpcid.region() == 0) count_goodeventBarrel++;
-              if(rpcid.region() != 0) count_goodeventEndcap++;
-              if(rpcid.region() == -1 && rpcid.station() == 1) count_goodeventDiskm1++;
-              if(rpcid.region() == -1 && rpcid.station() == 2) count_goodeventDiskm2++;
-              if(rpcid.region() == -1 && rpcid.station() == 3) count_goodeventDiskm3++;
-              if(rpcid.region() == 1 && rpcid.station() == 1) count_goodeventDisk1++;
-              if(rpcid.region() == 1 && rpcid.station() == 2) count_goodeventDisk2++;
-              if(rpcid.region() == 1 && rpcid.station() == 3) count_goodeventDisk3++;
-
 	      efficiency1 = 0;
 	      efficiency2 = 0;
 	      efficiency3 = 0;
@@ -588,17 +535,8 @@ void RPCEffTrackExtrapolationNew::endJob(){
 
 RPCEffTrackExtrapolationNew::~RPCEffTrackExtrapolationNew(){
 
-  std::cout<<"Understanding --> Total Efficiency:  "<<count_goodevent<<"  "<<count_effevent<<std::endl;
-  std::cout<<"Understanding --> Barrel Efficiency:  "<<count_goodeventBarrel<<"  "<<count_effeventBarrel<<std::endl;
-  std::cout<<"Understanding --> Endcap Efficiency:  "<<count_goodeventEndcap<<"  "<<count_effeventEndcap<<std::endl;
-  std::cout<<"Understanding --> Diskm1 Efficiency:  "<<count_goodeventDiskm1<<"  "<<count_effeventDiskm1<<std::endl;
-  std::cout<<"Understanding --> Diskm2 Efficiency:  "<<count_goodeventDiskm2<<"  "<<count_effeventDiskm2<<std::endl;
-  std::cout<<"Understanding --> Diskm3 Efficiency:  "<<count_goodeventDiskm3<<"  "<<count_effeventDiskm3<<std::endl;
-  std::cout<<"Understanding --> Disk1 Efficiency:  "<<count_goodeventDisk1<<"  "<<count_effeventDisk1<<std::endl;
-  std::cout<<"Understanding --> Disk2 Efficiency:  "<<count_goodeventDisk2<<"  "<<count_effeventDisk2<<std::endl;
-  std::cout<<"Understanding --> Disk3 Efficiency:  "<<count_goodeventDisk3<<"  "<<count_effeventDisk3<<std::endl;
-
-
+  float eff = ((float)count_effevent/count_goodevent);
+  std::cout<<"Understanding --> Efficiency:  "<<count_goodevent<<"  "<<count_effevent<<"  "<<eff<<std::endl;
 }
 
 DEFINE_FWK_MODULE(RPCEffTrackExtrapolationNew);

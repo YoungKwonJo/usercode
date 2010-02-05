@@ -6,7 +6,7 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=RecoMuon/TrackingTools>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=ForSccosmic/TrackAssociator>
+<use name=TrackingTools/TrackAssociator>
 <use name=RecoMuon/MeasurementDet>
 <use name=clhep>
 <use name=ROOT>
@@ -21,7 +21,7 @@
    <use name=PhysicsTools/UtilAlgos>
    <use name=RecoMuon/TrackingTools>
    <use name=Geometry/TrackerGeometryBuilder>
-   <use name=ForSccosmic/TrackAssociator>
+   <use name=TrackingTools/TrackAssociator>
    <use name=RecoMuon/MeasurementDet>
    <use name=clhep>
    <use name=ROOT>

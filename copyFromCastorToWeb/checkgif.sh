@@ -1,6 +1,4 @@
 k=0
-#folder="CosmicsBeamCommissioning09-PromptReco-v1RECO"
-folder="CosmicsBeamCommissioning09-PromptReco-v1RECO" #"BeamHaloBeamCommissioning09-PromptReco-v1RECO"
 run=`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/StreamExpressCRAFT09-RpcCalHLT-v1ALCARECO/ | grep 1 -c`
 rm list.php
 wget http://higgs.skku.ac.kr/test/list.php
@@ -8,7 +6,7 @@ wget http://higgs.skku.ac.kr/test/list.php
 for j in `seq 1 ${run}`
 do
 
-   runnumber=$((`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/$folder/ | sed -n -e $((${j}))p | grep 1`))
+   runnumber=$((`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/StreamExpressCRAFT09-RpcCalHLT-v1ALCARECO/ | sed -n -e $((${j}))p | grep 1`))
    
    is=not 
    web=`grep -c 1 list.php`
@@ -21,10 +19,10 @@ do
    done
    if [ $is = "not" ]; then
 
-      gif=`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/$folder/${runnumber}/ | grep -c gif`
+      gif=`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/StreamExpressCRAFT09-RpcCalHLT-v1ALCARECO/${runnumber}/ | grep -c gif`
       if [ "1" = "${gif}" ]; then
          k=$((${k}+1))
-         Ngif=$((`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/$folder/${runnumber}/gif/ | grep -c gif`))
+         Ngif=$((`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/StreamExpressCRAFT09-RpcCalHLT-v1ALCARECO/${runnumber}/gif/ | grep -c gif`))
          echo 'Run: '${runnumber}', : '${Ngif}' : '$k
          zero=$((0))
 	 if [ $Ngif -gt $zero ]; then
