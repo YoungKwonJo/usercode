@@ -577,7 +577,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
     const GlobalPoint &rGP = rpcGeo->idToDet(*rpcroll)->surface().toGlobal(LocalPoint(0,0,0));
     RPCGeomServ servId(rpcid);
     int rEn=rpcid.region(), rSe=rpcid.sector(), rWr=rpcid.ring(), rSt=rpcid.station(), rCh=servId.segment();
-    uint32_t dtcscid=0; double distance=150, MaxD=150;
+    uint32_t dtcscid=0; double distance=250, MaxD=250;
 
     //if(rSt ==2 ) MaxD=100; 
     //else if(rSt ==3 ) MaxD=100;

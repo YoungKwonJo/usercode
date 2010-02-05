@@ -307,7 +307,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
 
     if(rpcrollCounter[*rpcroll]<4) continue ;
     
-    uint32_t dtcscid=0; double distance=150, MaxD=150;
+    uint32_t dtcscid=0; double distance=250, MaxD=250;
 
    // if(rSt ==2 && rEn==0) MaxD=100;
    // else if(rSt ==3 && rEn==0) MaxD=100;
