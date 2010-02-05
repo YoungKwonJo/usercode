@@ -1,6 +1,6 @@
 k=0
 #folder="CosmicsBeamCommissioning09-PromptReco-v1RECO"
-folder="CosmicsBeamCommissioning09-PromptReco-v1RECO" #"BeamHaloBeamCommissioning09-PromptReco-v1RECO"
+folder="BeamHaloBeamCommissioning09-PromptReco-v1RECO"
 run=`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/StreamExpressCRAFT09-RpcCalHLT-v1ALCARECO/ | grep 1 -c`
 rm list.php
 wget http://higgs.skku.ac.kr/test/list.php

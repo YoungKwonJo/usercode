@@ -1,7 +1,7 @@
 
    runnumber=${1}
 #   folder="CosmicsBeamCommissioning09-PromptReco-v1RECO"
-folder="CosmicsBeamCommissioning09-PromptReco-v1RECO"#"BeamHaloBeamCommissioning09-PromptReco-v1RECO"
+folder="BeamHaloBeamCommissioning09-PromptReco-v1RECO"
 #   gif=`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/StreamExpressCRAFT09-RpcCalHLT-v1ALCARECO/${runnumber}/ | grep -c gif`
    gif=`nsls /castor/cern.ch/cms/store/caf/user/ccmuon/RPC/GlobalRuns/$folder/${runnumber}/ | grep -c gif`
 

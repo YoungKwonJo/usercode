@@ -11,7 +11,7 @@ process = cms.Process("Demo")
 # Conditions (Global Tag is used here):
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://PromptProd/CMS_COND_21X_GLOBALTAG"
-process.GlobalTag.globaltag = "GR09_P_V8::All"#"GR09_P_V8_34X::All"#"GR09_P_V8_34X::All"#"GR09_P_V8::All"#"CRUZET4_V4P::All"
+process.GlobalTag.globaltag = "GR09_31X_V3P::All"#"CRUZET4_V4P::All"
 #CRAFT_V4P::All , CRUZET4_V4P::All
 #process.GlobalTag.globaltag = 'COSMMC_22X_TK::All'
 #process.GlobalTag.globaltag = "CRZT210_V3P::All"
@@ -20,8 +20,7 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-#process.load("Configuration.StandardSequences.MagneticField_0T_cff")
-process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 
@@ -52,23 +51,16 @@ process.source = cms.Source("PoolSource",
 
 process.muonAnalyzer = cms.EDAnalyzer("TrajectoryRPCEff",
     process.MuonServiceProxy,
-    InputLabel = cms.InputTag("cosmicMuons"),#"standAloneMuons"), #"standAloneMuons"), #"globalMuons"),#"standAloneSETMuons"),
+    InputLabel = cms.InputTag("cosmicMuons","Refitted"),
 #    trajectoryInput = cms.untracked.string('cosmicMuons'),
 
     CSCRecSegmentLabel = cms.untracked.InputTag("csc2DRecHits"),
     RPCRecSegmentLabel = cms.untracked.InputTag("rpcRecHits"),
     DTRecSegmentLabel = cms.untracked.InputTag("dt1DRecHits"),
-    cscSegments = cms.untracked.InputTag("cscSegments"),
-    dt4DSegments = cms.untracked.InputTag("dt4DSegments"),
     TrackTransformer = cms.PSet(
-          DoPredictionsOnly = cms.bool(False),
-          Fitter = cms.string('KFFitterForRefitInsideOut'),
-          TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-          Smoother = cms.string('KFSmootherForRefitInsideOut'),
-          MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-          RefitDirection = cms.string('alongMomentum'),
-          RefitRPCHits = cms.bool(False),
-          Propagator = cms.string('SmartPropagatorAnyRKOpposite')
+    TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+    MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
+    RefitRPCHits = cms.bool(False)
     )
 
 )
@@ -79,8 +71,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-#process.glbMuons = cms.Sequence(process.cosmicMuons*process.muonAnalyzer)
-process.p = cms.Path(process.muonAnalyzer)
+process.glbMuons = cms.Sequence(process.cosmicMuons*process.muonAnalyzer)
+process.p = cms.Path(process.glbMuons)
 #process.outpath = cms.EndPath(process.out)
 
 
