@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -64,8 +64,8 @@ class TracktoRPC {
 public:
 
 
-  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig,string tracklabel);
-//  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig,bool checksegment,edm::Handle<DTRecSegment4DCollection> all4DSegments,edm::Handle<CSCSegmentCollection> allCSCSegments);
+  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig,edm::InputTag& tracklabel);
+
   ~TracktoRPC();
   RPCRecHitCollection* thePoints(){return _ThePoints;}
   bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
@@ -79,7 +79,6 @@ private:
  edm::ESHandle<Propagator> thePropagator;
 };
 
-/////////////////////////
 class DTStationIndex2{
 public: 
   DTStationIndex2():_region(0),_wheel(0),_sector(0),_station(0){}
@@ -122,7 +121,6 @@ public:
 private:
   static ObjectMap2* mapInstance;
 }; 
-///////////////////////
 class CSCStationIndex2{
 public:
   CSCStationIndex2():_region(0),_station(0),_ring(0),_chamber(0){}
@@ -165,6 +163,5 @@ public:
 private:
   static ObjectMap2CSC* mapInstance;
 }; 
-/////////////////////////
 
 #endif

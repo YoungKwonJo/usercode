@@ -9,63 +9,57 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V15::All"
+process.GlobalTag.globaltag = "GR_R_36X_V7::All"#"GR10_P_V7::All"#"GR_R_35X_V6::All" 
+
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-
 process.load("FWCore.MessageService.MessageLogger_cfi")
-
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_5_0_pre2/RelValZMM/GEN-SIM-RECO/STARTUP3X_V14-v1/0009/DE021237-8FED-DE11-A452-0030486792AC.root'
-    )
+
+
+
+        '/store/data/Commissioning10/MinimumBias/RECO/v9/000/135/802/F6FB8B26-8563-DF11-8488-000423D98950.root',
+
+
+
+        )                           
 )
 
-process.rpcPointProducer = cms.EDProducer('RPCPointProducer',
-  incldt = cms.untracked.bool(True),
-  inclcsc = cms.untracked.bool(True),
-  incltrack =  cms.untracked.bool(True),
-
-  debug = cms.untracked.bool(True),
-
-  rangestrips = cms.untracked.double(4.),
-  rangestripsRB4 = cms.untracked.double(4.),
-  MinCosAng = cms.untracked.double(0.85),
-  MaxD = cms.untracked.double(80.0),
-  MaxDrb4 = cms.untracked.double(150.0),
-  ExtrapolatedRegion = cms.untracked.double(0.6), #in stripl/2 in Y and stripw*nstrips/2 in X
-
-  cscSegments = cms.untracked.string('cscSegments'),
-  dt4DSegments = cms.untracked.string('dt4DSegments'),
-  tracks = cms.untracked.string('standAloneMuons'),
-  TrackTransformer = cms.PSet(
-      DoPredictionsOnly = cms.bool(False),
-      Fitter = cms.string('KFFitterForRefitInsideOut'),
-      TrackerRecHitBuilder = cms.string('WithTrackAngle'),
-      Smoother = cms.string('KFSmootherForRefitInsideOut'),
-      MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
-      RefitDirection = cms.string('alongMomentum'),
-      RefitRPCHits = cms.bool(False),
-      Propagator = cms.string('SmartPropagatorAnyRKOpposite')
-  ),
-# cscSegments = cms.untracked.string('hltCscSegments'),
-# dt4DSegments = cms.untracked.string('hltDt4DSegments'),
-)
-
+#process.load("UserCode.Fabozzi.rpcDataSkimAndProduce_cff")
+process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
+#process.load("UserCode.Fabozzi.rpcSkimComplDetTrigger_cff")
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('132440:157-132440:999','132569:169-132569:999','132596:317-132596:999','132606:92-132606:999','132599:317-132599:999')
+#process.source.eventsToSkip = cms.untracked.VEventRange('132440:1-132440:MAX','132569:1-132569:MAX','132596:1-132596:MAX','132606:1-132606:MAX','132599:1-132599:MAX')
 process.out = cms.OutputModule("PoolOutputModule",
   outputCommands = cms.untracked.vstring('drop *',
+        'keep *_gtDigis_*_*',
         'keep *_dt4DSegments_*_*',
         'keep *_cscSegments_*_*',
         'keep *_rpcPointProducer_*_*',
-        'keep *_rpcRecHits_*_*'),
-  fileName = cms.untracked.string('output.root')
+        'keep *_rpcRecHits_*_*',
+        'keep *_standAloneMuonsNoRPC_*_*',
+        'keep *_standAloneMuons_*_*',
+        'keep *_cosmicMuons_*_*',
+        'keep *_globalMuons_*_*',
+        'keep *_*NoRPC_*_*',
+        'keep L1MuRegionalCand*_*_*_*',
+        'keep *_simMuonRPCDigis_*_*',
+        'keep L1GlobalTriggerObjectMapRecord*_*_*_*',
+        'keep *_g4SimHits_*_*',
+        'keep *_muonRPCDigis_*_*'),
+#  fileName = cms.untracked.string('/tmp/carrillo/outs/output.root')
+ fileName = cms.untracked.string('output.root')
+)
+
+process.options = cms.untracked.PSet(
+  SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
   
 process.p = cms.Path(process.rpcPointProducer)
