@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.3 2010/02/23 08:08:32 carrillo Exp $
+// $Id: RPCPointProducer.cc,v 1.2 2010/08/03 14:55:55 youngjo Exp $
 //
 //
 
@@ -63,12 +63,12 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   clock_gettime(CLOCK_REALTIME, &start_time);  
   */
 
-    edm::Handle<reco::TrackCollection> alltracks;
-    iEvent.getByLabel(tracks,alltracks);
+   // edm::Handle<reco::TrackCollection> alltracks;
+   // iEvent.getByLabel(tracks,alltracks);
   if(incldt){
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
-    if( !(alltracks->empty()) && all4DSegments.isValid()){
+    if( all4DSegments.isValid()){
       DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
       iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
@@ -80,7 +80,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(inclcsc){
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     iEvent.getByLabel(cscSegments, allCSCSegments);
-    if( !(alltracks->empty()) && allCSCSegments.isValid()){
+    if( allCSCSegments.isValid()){
       CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
       iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
@@ -89,8 +89,8 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   if(incltrack){
-   // edm::Handle<reco::TrackCollection> alltracks;
-   // iEvent.getByLabel(tracks,alltracks);
+    edm::Handle<reco::TrackCollection> alltracks;
+    iEvent.getByLabel(tracks,alltracks);
     if(!(alltracks->empty())){
       TracktoRPC TrackClass(alltracks,iSetup,iEvent,debug,trackTransformerParam,tracks);
       std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
@@ -98,13 +98,6 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }else{
       std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
     }
-   /* if(!(alltracks->empty())){
-      TrackPolNtoRPC TrackClass(alltracks,iSetup,iEvent,debug);
-      std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
-      iEvent.put(TheTrackPoints,"RPCTrackPExtrapolatedPoints");
-    }else{
-      std::cout<<"RPCHLT Invalid TrackPs collection"<<std::endl;
-    }*/
   }
   std::cout<<"-- "<<std::endl;  
 }
