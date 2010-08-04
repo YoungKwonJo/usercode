@@ -10,7 +10,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V15::All"
+process.GlobalTag.globaltag = "GR_R_36X_V7::All"
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
-process.rpcPointProducer.tracks = cms.InputTag("cosmicMuons") # for cosmicMuons
+process.rpcPointProducer.tracks = cms.InputTag("standAloneMuonsNoRPC") # for cosmicMuons
 
 process.out = cms.OutputModule("PoolOutputModule",
   outputCommands = cms.untracked.vstring('drop *',
@@ -39,7 +39,13 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_rpcRecHits_*_*',
         'keep *_standAloneMuons_*_*',
         'keep *_cosmicMuons_*_*',
-        'keep *_globalMuons_*_*'),
+        'keep *_globalMuons_*_*',
+        'keep *_*NoRPC_*_*',
+        'keep L1MuRegionalCand*_*_*_*',
+        'keep *_simMuonRPCDigis_*_*',
+        'keep L1GlobalTriggerObjectMapRecord*_*_*_*',
+        'keep *_g4SimHits_*_*',
+        'keep *_muonRPCDigis_*_*'),
  fileName = cms.untracked.string('/tmp/carrillo/outs/output.root')
 )
   
