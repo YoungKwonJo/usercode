@@ -23,13 +23,16 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+#	'/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+        "rfio:/castor/cern.ch/user/s/stupputi/Beams/Data/SecondEra/PromptReco140127140330/rpcSkim_1_1_2By.root"
+
         )                           
 )
 
 
 process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
-process.rpcPointProducer.tracks = cms.InputTag("standAloneMuonsNoRPC") # for cosmicMuons
+#process.rpcPointProducer.tracks = cms.InputTag("cosmicMuons") # for cosmicMuons
+process.rpcPointProducer.tracks = cms.InputTag("standAloneMuonsNoRPC") # for collision
 
 process.out = cms.OutputModule("PoolOutputModule",
   outputCommands = cms.untracked.vstring('drop *',
