@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya
 //         Created:  Wed Sep 16 14:56:18 CEST 2009
-// $Id: RPCPointProducer.cc,v 1.2 2010/08/03 14:55:55 youngjo Exp $
+// $Id: RPCPointProducer.cc,v 1.7 2010/07/19 10:43:56 carrillo Exp $
 //
 //
 
@@ -30,22 +30,25 @@ RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
 {
   cscSegments=iConfig.getParameter<edm::InputTag>("cscSegments");
   dt4DSegments=iConfig.getParameter<edm::InputTag>("dt4DSegments");
-  tracks=iConfig.getParameter<edm::InputTag>("tracks");
+  //tracks=iConfig.getParameter<edm::InputTag>("tracks");
 
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  incltrack=iConfig.getUntrackedParameter<bool>("incltrack",true);
+  incltrack=iConfig.getUntrackedParameter<bool>("incltrack",false);
+  inclsimhit=iConfig.getUntrackedParameter<bool>("inclsimhit",false);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
   MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
   MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
+  //trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
+
   ExtrapolatedRegion=iConfig.getUntrackedParameter<double>("ExtrapolatedRegion",0.5);
 
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
-  produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
-//  produces<RPCRecHitCollection>("RPCTrackPExtrapolatedPoints");
-  trackTransformerParam = iConfig.getParameter<ParameterSet>("TrackTransformer");  
+  // produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
+  // produces<RPCRecHitCollection>("RPCSIMHITPoints");
+
 }
 
 
@@ -63,12 +66,10 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   clock_gettime(CLOCK_REALTIME, &start_time);  
   */
 
-   // edm::Handle<reco::TrackCollection> alltracks;
-   // iEvent.getByLabel(tracks,alltracks);
   if(incldt){
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
-    if( all4DSegments.isValid()){
+    if(all4DSegments.isValid()){
       DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
       iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
@@ -80,7 +81,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(inclcsc){
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     iEvent.getByLabel(cscSegments, allCSCSegments);
-    if( allCSCSegments.isValid()){
+    if(allCSCSegments.isValid()){
       CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
       iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
@@ -88,6 +89,8 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       if(debug) std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
     }
   }
+
+  /*
   if(incltrack){
     edm::Handle<reco::TrackCollection> alltracks;
     iEvent.getByLabel(tracks,alltracks);
@@ -99,7 +102,21 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
     }
   }
-  std::cout<<"-- "<<std::endl;  
+
+  if(inclsimhit){
+    std::vector<edm::Handle<edm::PSimHitContainer> > theSimHitContainers;
+    iEvent.getManyByType(theSimHitContainers);
+    if(!(theSimHitContainers.empty())){
+      int partid = 13;
+      SIMHITtoRPC SIMHITClass(theSimHitContainers,iSetup,iEvent,debug,partid);
+      std::auto_ptr<RPCRecHitCollection> TheSIMHITPoints(SIMHITClass.thePoints());  
+      iEvent.put(TheSIMHITPoints,"RPCSIMHITPoints"); 
+    }else{
+      if(debug) std::cout<<"RPCHLT Empty SIMHIT collection"<<std::endl;
+    }
+  }
+  */
+ 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
