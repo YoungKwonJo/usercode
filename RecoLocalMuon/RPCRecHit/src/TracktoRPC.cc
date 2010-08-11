@@ -229,7 +229,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                     if(!check) continue;
                     
                     TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
-                    if(ptss.isValid()) //if(ValidRPCSurface(rpcId, ptss.localPosition(), iSetup))
+                    if(ptss.isValid()) if(ValidRPCSurface(rpcId, ptss.localPosition(), iSetup))
                     {
                         float rpcGPX = ptss.globalPosition().x();
                         float rpcGPY = ptss.globalPosition().y();
@@ -311,7 +311,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                          if(!check) continue;
                      
                          TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
-                         if(ptss.isValid()) //if(ValidRPCSurface(rpcId, ptss.localPosition(), iSetup))
+                         if(ptss.isValid()) if(ValidRPCSurface(rpcId, ptss.localPosition(), iSetup))
                          {
                               float rpcGPX = ptss.globalPosition().x();
                               float rpcGPY = ptss.globalPosition().y();
